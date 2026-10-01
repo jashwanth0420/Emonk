@@ -32,9 +32,9 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Review Attendance</h1>
-        <Button variant="outline" asChild>
-          <a href="/tutor/attendance">Back to List</a>
-        </Button>
+        <a href="/tutor/attendance" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+          Back to List
+        </a>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">

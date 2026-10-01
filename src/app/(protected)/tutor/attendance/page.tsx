@@ -35,9 +35,9 @@ export default async function TutorAttendancePage() {
                 <TableCell>{record.schedules?.title}</TableCell>
                 <TableCell>{new Date(record.attendance_date).toLocaleDateString()}</TableCell>
                 <TableCell className="text-right">
-                  <Button asChild size="sm">
-                    <Link href={`/tutor/attendance/${record.id}`}>Review Submission</Link>
-                  </Button>
+                  <Link href={`/tutor/attendance/${record.id}`} className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3 py-1">
+                    Review Submission
+                  </Link>
                 </TableCell>
               </TableRow>
             ))}

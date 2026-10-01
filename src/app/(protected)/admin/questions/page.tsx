@@ -16,9 +16,9 @@ export default async function AdminQuestionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Question Bank</h1>
-        <Button asChild variant="outline">
-          <a href="/admin/ai">Generate with AI</a>
-        </Button>
+        <a href="/admin/ai" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+          Generate with AI
+        </a>
       </div>
 
       <div className="border rounded-lg overflow-hidden bg-card">

@@ -72,9 +72,9 @@ export default async function StudentDashboard() {
                         {attendanceRecord.status === 'approved' && "Your attendance has been approved!"}
                       </p>
                       {['checked_in', 'question_assigned'].includes(attendanceRecord.status) && (
-                        <Button asChild className="w-full mt-4" variant="outline">
-                          <a href="/student/attendance">Continue Session</a>
-                        </Button>
+                        <a href="/student/attendance" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 w-full mt-4">
+                          Continue Session
+                        </a>
                       )}
                     </div>
                   )}
