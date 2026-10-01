@@ -1,27 +1,13 @@
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
-import { Users, UserSquare, Calendar, BookOpen, HelpCircle } from 'lucide-react'
+import { Users, UserSquare, Calendar, BookOpen, HelpCircle, LayoutDashboard, BarChart3, MessageSquare, Brain } from 'lucide-react'
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) redirect('/login')
-
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  
-  const role = profile?.role || 'student'
-  
-  if (role !== 'super_admin') {
-    redirect(`/${role}/dashboard`)
-  }
-
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
       <aside className="w-64 border-r bg-background p-4 hidden md:block">
         <nav className="space-y-2">
           <Link href="/admin/dashboard" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted font-medium">
+            <LayoutDashboard className="h-4 w-4" />
             Dashboard
           </Link>
           <Link href="/admin/students" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted font-medium">
@@ -43,6 +29,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/questions" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted font-medium">
             <HelpCircle className="h-4 w-4" />
             Question Bank
+          </Link>
+          <Link href="/admin/ai" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted font-medium">
+            <Brain className="h-4 w-4" />
+            AI Generator
+          </Link>
+          <Link href="/admin/analytics" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted font-medium">
+            <BarChart3 className="h-4 w-4" />
+            Analytics
+          </Link>
+          <Link href="/admin/posts" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted font-medium">
+            <MessageSquare className="h-4 w-4" />
+            Posts
           </Link>
         </nav>
       </aside>

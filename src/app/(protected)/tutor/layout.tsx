@@ -1,22 +1,7 @@
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
-import { LayoutDashboard, Users, CheckSquare, TrendingUp } from 'lucide-react'
+import { LayoutDashboard, Users, CheckSquare } from 'lucide-react'
 
-export default async function TutorLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) redirect('/login')
-
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  
-  const role = profile?.role || 'student'
-  
-  if (role !== 'tutor') {
-    redirect(`/${role}/dashboard`)
-  }
-
+export default function TutorLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
       <aside className="w-64 border-r bg-background p-4 hidden md:block">

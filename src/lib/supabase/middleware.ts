@@ -29,25 +29,61 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
   
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/login')
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/admin') || 
-                           request.nextUrl.pathname.startsWith('/tutor') || 
-                           request.nextUrl.pathname.startsWith('/student')
+  const pathname = request.nextUrl.pathname
+  const isAuthRoute = pathname.startsWith('/login')
+  const isAdminRoute = pathname.startsWith('/admin')
+  const isTutorRoute = pathname.startsWith('/tutor')
+  const isStudentRoute = pathname.startsWith('/student')
+  const isProtectedRoute = isAdminRoute || isTutorRoute || isStudentRoute
 
+  // Not logged in? Redirect to login
   if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
+  // Logged in and trying to access login page? Redirect to their dashboard
   if (user && isAuthRoute) {
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
     const role = profile?.role || 'student'
-    const basePath = role === 'super_admin' ? 'admin' : role
     const url = request.nextUrl.clone()
-    url.pathname = `/${basePath}/dashboard`
+    url.pathname = getRoleBasePath(role) + '/dashboard'
     return NextResponse.redirect(url)
   }
 
+  // Logged in and accessing a protected route? Enforce correct role routing
+  if (user && isProtectedRoute) {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    const role = profile?.role || 'student'
+    const correctBasePath = getRoleBasePath(role)
+
+    // Check if user is on the wrong section
+    if (isAdminRoute && correctBasePath !== '/admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = correctBasePath + '/dashboard'
+      return NextResponse.redirect(url)
+    }
+    if (isTutorRoute && correctBasePath !== '/tutor') {
+      const url = request.nextUrl.clone()
+      url.pathname = correctBasePath + '/dashboard'
+      return NextResponse.redirect(url)
+    }
+    if (isStudentRoute && correctBasePath !== '/student') {
+      const url = request.nextUrl.clone()
+      url.pathname = correctBasePath + '/dashboard'
+      return NextResponse.redirect(url)
+    }
+  }
+
   return supabaseResponse
+}
+
+function getRoleBasePath(role: string): string {
+  switch (role) {
+    case 'super_admin': return '/admin'
+    case 'tutor': return '/tutor'
+    case 'student': return '/student'
+    default: return '/student'
+  }
 }
