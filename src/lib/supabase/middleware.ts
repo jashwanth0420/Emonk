@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { createAdminClient } from './admin'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -45,7 +46,8 @@ export async function updateSession(request: NextRequest) {
 
   // Logged in and trying to access login page? Redirect to their dashboard
   if (user && isAuthRoute) {
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    const adminClient = createAdminClient()
+    const { data: profile } = await adminClient.from('profiles').select('role').eq('id', user.id).single()
     const role = profile?.role || 'student'
     const url = request.nextUrl.clone()
     url.pathname = getRoleBasePath(role) + '/dashboard'
@@ -54,7 +56,8 @@ export async function updateSession(request: NextRequest) {
 
   // Logged in and accessing a protected route? Enforce correct role routing
   if (user && isProtectedRoute) {
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    const adminClient = createAdminClient()
+    const { data: profile } = await adminClient.from('profiles').select('role').eq('id', user.id).single()
     const role = profile?.role || 'student'
     const correctBasePath = getRoleBasePath(role)
 
@@ -81,9 +84,14 @@ export async function updateSession(request: NextRequest) {
 
 function getRoleBasePath(role: string): string {
   switch (role) {
-    case 'super_admin': return '/admin'
-    case 'tutor': return '/tutor'
-    case 'student': return '/student'
-    default: return '/student'
+    case 'super_admin': 
+    case 'admin': 
+      return '/admin'
+    case 'tutor': 
+      return '/tutor'
+    case 'student': 
+      return '/student'
+    default: 
+      return '/student'
   }
 }

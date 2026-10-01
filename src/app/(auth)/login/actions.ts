@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
+import { createAdminClient } from '@/lib/supabase/admin'
+
 export async function loginAction(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
@@ -16,8 +18,11 @@ export async function loginAction(formData: FormData) {
     return redirect('/login?error=' + encodeURIComponent(error.message))
   }
   
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
-  const basePath = (profile?.role === 'super_admin') ? 'admin' : (profile?.role || 'student')
+  // Use admin client to bypass RLS infinite recursion
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient.from('profiles').select('role').eq('id', data.user.id).single()
+  
+  const basePath = (profile?.role === 'super_admin' || profile?.role === 'admin') ? 'admin' : (profile?.role || 'student')
   redirect(`/${basePath}/dashboard`)
 }
 
