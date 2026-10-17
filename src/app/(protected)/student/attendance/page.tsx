@@ -1,64 +1,91 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
+import { CheckCircle2, BookOpen, HelpCircle } from 'lucide-react'
 import { submitTopicsAction, submitAnswerAction } from '../actions'
 
 export default async function AttendanceFlowPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const today = new Date().toISOString().split('T')[0]
 
-  const { data: attendance } = await supabase
+  const adminClient = createAdminClient()
+
+  // Fetch the latest active or in-progress attendance record
+  const { data: attendances } = await adminClient
     .from('attendance')
     .select('*, schedules(title, date), questions(question_text, expected_concepts)')
     .eq('student_id', user?.id)
-    .eq('attendance_date', today)
-    .single()
+    .order('created_at', { ascending: false })
+    .limit(1)
+
+  const attendance = attendances?.[0]
 
   if (!attendance) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold">No Active Check-in</h2>
-          <p className="text-muted-foreground">Please go to your dashboard to check in first.</p>
-          <a href="/student/dashboard" className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">Go to Dashboard</a>
-        </div>
+        <Card className="max-w-md text-center p-6 bg-card/90 backdrop-blur-md space-y-4">
+          <h2 className="text-xl font-bold">No Active Check-in Found</h2>
+          <p className="text-xs text-muted-foreground">
+            Please navigate to your dashboard and check into today's active session first.
+          </p>
+          <Link 
+            href="/student/dashboard" 
+            className="inline-flex items-center justify-center rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 w-full"
+          >
+            Go to Student Dashboard
+          </Link>
+        </Card>
       </div>
     )
   }
 
   // STATE 1: Checked in -> Needs Topic Selection
   if (attendance.status === 'checked_in') {
-    const { data: topics } = await supabase.from('topics').select('*').eq('is_active', true)
+    const { data: topics } = await adminClient.from('topics').select('*').eq('is_active', true).order('name')
     
     return (
-      <div className="max-w-2xl mx-auto mt-8">
-        <Card>
+      <div className="max-w-2xl mx-auto mt-6">
+        <Card className="bg-card/90 backdrop-blur-md">
           <CardHeader>
-            <CardTitle>What did you learn today?</CardTitle>
-            <CardDescription>Select the topics you covered in {attendance.schedules?.title}</CardDescription>
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-orange-500" />
+              <CardTitle>What did you study today?</CardTitle>
+            </div>
+            <CardDescription>
+              Select the topics covered during <strong>{attendance.schedules?.title || 'your session'}</strong> to receive your targeted concept assessment.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form action={submitTopicsAction} className="space-y-6">
               <input type="hidden" name="attendance_id" value={attendance.id} />
               <input type="hidden" name="schedule_id" value={attendance.schedule_id} />
               
-              <div className="space-y-4">
+              <div className="space-y-2.5">
                 {topics?.map((topic) => (
-                  <div key={topic.id} className="flex items-center space-x-2 border p-3 rounded-md">
-                    <Checkbox id={topic.id} name="topics" value={topic.id} />
-                    <div className="grid gap-1.5 leading-none pl-2">
-                      <Label htmlFor={topic.id} className="cursor-pointer">{topic.name}</Label>
-                      <p className="text-sm text-muted-foreground">{topic.category}</p>
+                  <label key={topic.id} className="flex items-center space-x-3 border p-3 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      name="topics" 
+                      value={topic.id}
+                      className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500" 
+                    />
+                    <div className="grid gap-0.5 text-xs">
+                      <span className="font-semibold text-sm">{topic.name}</span>
+                      <span className="text-muted-foreground">{topic.category}</span>
                     </div>
-                  </div>
+                  </label>
                 ))}
               </div>
               
-              <Button type="submit" className="w-full">Continue to Assessment</Button>
+              <Button type="submit" className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium">
+                Continue to Assessment Question
+              </Button>
             </form>
           </CardContent>
         </Card>
@@ -69,34 +96,51 @@ export default async function AttendanceFlowPage() {
   // STATE 2: Question Assigned -> Needs Answer
   if (attendance.status === 'question_assigned') {
     return (
-      <div className="max-w-3xl mx-auto mt-8">
-        <Card>
+      <div className="max-w-3xl mx-auto mt-6">
+        <Card className="bg-card/90 backdrop-blur-md">
           <CardHeader>
-            <CardTitle>Session Assessment</CardTitle>
-            <CardDescription>Please answer the following question to complete your attendance.</CardDescription>
+            <div className="flex items-center gap-2">
+              <HelpCircle className="w-5 h-5 text-orange-500" />
+              <CardTitle>Session Assessment Question</CardTitle>
+            </div>
+            <CardDescription>
+              Demonstrate your conceptual grasp to verify your presence and earn attendance credit.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form action={submitAnswerAction} className="space-y-6">
               <input type="hidden" name="attendance_id" value={attendance.id} />
               <input type="hidden" name="question_id" value={attendance.question_id || ''} />
               
-              <div className="bg-muted p-6 rounded-lg mb-6 border">
-                <h3 className="font-semibold text-lg mb-2">Question:</h3>
-                <p>{attendance.questions?.question_text || (attendance.question_id ? "Loading question..." : "No questions available for this topic. Type 'N/A' to continue.")}</p>
+              <div className="bg-muted/60 p-5 rounded-lg border space-y-2">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Assigned Question:</span>
+                <p className="text-sm font-medium leading-relaxed">
+                  {attendance.questions?.question_text || "Explain the core concepts, edge cases, and algorithmic complexity of the problems you worked on today."}
+                </p>
+                {attendance.questions?.expected_concepts && attendance.questions.expected_concepts.length > 0 && (
+                  <div className="pt-2 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] text-muted-foreground">Key concepts to mention:</span>
+                    {attendance.questions.expected_concepts.map((c: string, i: number) => (
+                      <Badge key={i} variant="outline" className="text-[10px] py-0">{c}</Badge>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="answer">Your Answer</Label>
+                <Label htmlFor="answer" className="text-xs">Your Answer / Approach Explanation</Label>
                 <Textarea 
                   id="answer" 
                   name="answer" 
-                  placeholder="Explain your approach..." 
-                  className="min-h-[200px]"
+                  placeholder="Explain your thought process, data structures used, time & space complexity..." 
+                  className="min-h-[180px] text-sm"
                   required 
                 />
               </div>
               
-              <Button type="submit" className="w-full">Submit Answer & Complete Check-in</Button>
+              <Button type="submit" className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium">
+                Submit Answer for Verification
+              </Button>
             </form>
           </CardContent>
         </Card>
@@ -106,16 +150,27 @@ export default async function AttendanceFlowPage() {
 
   // STATE 3: Pending Review or Approved
   return (
-    <div className="max-w-2xl mx-auto mt-16 text-center space-y-6">
-      <div className="mx-auto w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl font-bold mb-4">
-        ?
-      </div>
-      <h2 className="text-3xl font-bold">Check-in Complete!</h2>
-      <p className="text-lg text-muted-foreground">
-        Your attendance and assessment have been submitted. <br />
-        Status: <strong className="uppercase">{attendance.status.replace('_', ' ')}</strong>
-      </p>
-      <a href="/student/dashboard" className="mt-8 inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">Return to Dashboard</a>
+    <div className="max-w-xl mx-auto mt-12 text-center space-y-5">
+      <Card className="p-8 bg-card/90 backdrop-blur-md space-y-4">
+        <div className="mx-auto w-14 h-14 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
+          <CheckCircle2 className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-bold">Assessment Submitted!</h2>
+        <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+          Your attendance log and conceptual answer have been securely recorded.
+        </p>
+        <div className="p-3 bg-muted/50 rounded-lg inline-block text-xs font-mono">
+          Current Status: <strong className="uppercase text-orange-600 font-bold">{attendance.status.replace('_', ' ')}</strong>
+        </div>
+        <div>
+          <Link 
+            href="/student/dashboard" 
+            className="inline-flex items-center justify-center rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-6 mt-4"
+          >
+            Return to Dashboard
+          </Link>
+        </div>
+      </Card>
     </div>
   )
 }

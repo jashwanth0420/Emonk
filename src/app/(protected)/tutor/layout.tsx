@@ -4,7 +4,7 @@ import { LayoutDashboard, Users, CheckSquare } from 'lucide-react'
 export default function TutorLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
-      <aside className="w-64 border-r bg-background p-4 hidden md:block">
+      <aside className="w-64 border-r bg-white/85 dark:bg-zinc-950/85 backdrop-blur-md p-4 hidden md:block border-black/10">
         <nav className="space-y-2">
           <Link href="/tutor/dashboard" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted font-medium">
             <LayoutDashboard className="h-4 w-4" />

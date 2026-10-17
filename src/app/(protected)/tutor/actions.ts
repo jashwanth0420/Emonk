@@ -1,38 +1,55 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 export async function reviewAttendanceAction(formData: FormData) {
   const attendanceId = formData.get('attendance_id') as string
   const action = formData.get('action') as 'approved' | 'rejected'
-  const feedback = formData.get('feedback') as string
+  const feedback = (formData.get('feedback') as string)?.trim() || null
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) return { error: "Not authenticated" }
+  if (!user) {
+    redirect('/login')
+  }
 
-  const { data: attendance } = await supabase
+  const adminClient = createAdminClient()
+
+  // 1. Fetch attendance
+  const { data: attendance } = await adminClient
     .from('attendance')
-    .select('student_id')
+    .select('student_id, status')
     .eq('id', attendanceId)
     .single()
 
-  if (!attendance) return { error: "Attendance not found" }
+  if (!attendance) {
+    redirect('/tutor/attendance?error=Attendance+record+not+found')
+  }
 
-  const { data: assignment } = await supabase
-    .from('tutor_student_assignments')
-    .select('id')
-    .eq('tutor_id', user.id)
-    .eq('student_id', attendance.student_id)
-    .eq('status', 'active')
-    .single()
+  // 2. Authorization: Allow Super Admins/Admins OR Assigned Tutors
+  const { data: userProfile } = await adminClient.from('profiles').select('role').eq('id', user.id).single()
+  const isAdmin = userProfile?.role === 'super_admin' || userProfile?.role === 'admin'
 
-  if (!assignment) return { error: "Not authorized to review this student" }
+  if (!isAdmin) {
+    const { data: assignment } = await adminClient
+      .from('tutor_student_assignments')
+      .select('id')
+      .eq('tutor_id', user.id)
+      .eq('student_id', attendance.student_id)
+      .eq('status', 'active')
+      .maybeSingle()
 
-  const { error: updateError } = await supabase
+    if (!assignment) {
+      redirect(`/tutor/attendance?error=${encodeURIComponent('You are not assigned to review this student.')}`)
+    }
+  }
+
+  // 3. Update attendance record
+  const { error: updateError } = await adminClient
     .from('attendance')
     .update({
       status: action,
@@ -43,23 +60,33 @@ export async function reviewAttendanceAction(formData: FormData) {
     })
     .eq('id', attendanceId)
 
-  if (updateError) return { error: updateError.message }
+  if (updateError) {
+    redirect(`/tutor/attendance?error=${encodeURIComponent(updateError.message)}`)
+  }
 
-  await supabase.from('attendance_reviews').insert({
+  // 4. Create review entry
+  await adminClient.from('attendance_reviews').insert({
     attendance_id: attendanceId,
     reviewer_id: user.id,
     action: action,
     feedback: feedback
   })
 
-  await supabase.from('audit_logs').insert({
+  // 5. Audit log
+  await adminClient.from('audit_logs').insert({
     actor_id: user.id,
     action: `ATTENDANCE_${action.toUpperCase()}`,
     entity_type: 'attendance',
     entity_id: attendanceId,
+    new_data: { action, feedback }
   })
 
   revalidatePath('/tutor/attendance')
   revalidatePath('/tutor/dashboard')
-  redirect('/tutor/attendance')
+  revalidatePath('/student/dashboard')
+  revalidatePath('/student/attendance')
+  revalidatePath('/student/calendar')
+  revalidatePath('/student/progress')
+  
+  redirect(`/tutor/attendance?success=${encodeURIComponent(`Attendance successfully ${action}!`)}`)
 }

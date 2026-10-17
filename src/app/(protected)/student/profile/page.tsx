@@ -6,7 +6,12 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { updateProfileAction } from './actions'
 
-export default async function StudentProfilePage() {
+export default async function StudentProfilePage({
+  searchParams
+}: {
+  searchParams: Promise<{ success?: string; error?: string }>
+}) {
+  const { success, error } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -19,6 +24,18 @@ export default async function StudentProfilePage() {
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold">My Profile</h1>
+
+      {success && (
+        <div className="p-4 rounded-md bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-300 text-sm">
+          {success}
+        </div>
+      )}
+
+      {error && (
+        <div className="p-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 text-sm">
+          {error}
+        </div>
+      )}
 
       <Card>
         <CardHeader>

@@ -268,6 +268,69 @@ const parseColor = (value: any, fallback: string) => {
   return [0, 2, 4].map(offset => parseInt(hex.slice(offset, offset + 2), 16) / 255);
 };
 
+function createSimplexNoise() {
+  const perm = new Uint8Array(512);
+  const p = new Uint8Array(256);
+  for (let i = 0; i < 256; i++) p[i] = i;
+  for (let i = 255; i > 0; i--) {
+    const r = Math.floor(Math.abs(Math.sin(i * 12.9898 + 78.233)) * (i + 1)) % (i + 1);
+    const t = p[i];
+    p[i] = p[r];
+    p[r] = t;
+  }
+  for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+
+  const F2 = 0.5 * (Math.sqrt(3.0) - 1.0);
+  const G2 = (3.0 - Math.sqrt(3.0)) / 6.0;
+  const grad3 = [
+    [1, 1], [-1, 1], [1, -1], [-1, -1],
+    [1, 0], [-1, 0], [0, 1], [0, -1]
+  ];
+
+  return function simplex(xin: number, yin: number) {
+    let n0 = 0, n1 = 0, n2 = 0;
+    const s = (xin + yin) * F2;
+    const i = Math.floor(xin + s);
+    const j = Math.floor(yin + s);
+    const t = (i + j) * G2;
+    const X0 = i - t;
+    const Y0 = j - t;
+    const x0 = xin - X0;
+    const y0 = yin - Y0;
+
+    let i1 = 0, j1 = 0;
+    if (x0 > y0) { i1 = 1; j1 = 0; } else { i1 = 0; j1 = 1; }
+
+    const x1 = x0 - i1 + G2;
+    const y1 = y0 - j1 + G2;
+    const x2 = x0 - 1.0 + 2.0 * G2;
+    const y2 = y0 - 1.0 + 2.0 * G2;
+
+    const ii = i & 255;
+    const jj = j & 255;
+    const gi0 = perm[ii + perm[jj]] % 8;
+    const gi1 = perm[ii + i1 + perm[jj + j1]] % 8;
+    const gi2 = perm[ii + 1 + perm[jj + 1]] % 8;
+
+    let t0 = 0.5 - x0 * x0 - y0 * y0;
+    if (t0 >= 0) {
+      t0 *= t0;
+      n0 = t0 * t0 * (grad3[gi0][0] * x0 + grad3[gi0][1] * y0);
+    }
+    let t1 = 0.5 - x1 * x1 - y1 * y1;
+    if (t1 >= 0) {
+      t1 *= t1;
+      n1 = t1 * t1 * (grad3[gi1][0] * x1 + grad3[gi1][1] * y1);
+    }
+    let t2 = 0.5 - x2 * x2 - y2 * y2;
+    if (t2 >= 0) {
+      t2 *= t2;
+      n2 = t2 * t2 * (grad3[gi2][0] * x2 + grad3[gi2][1] * y2);
+    }
+    return 70.0 * (n0 + n1 + n2);
+  };
+}
+
 export default function ShapeWaves({
   text = '',
   fontFamily = 'Geist, "Geist Sans", system-ui, sans-serif',
@@ -456,21 +519,287 @@ export default function ShapeWaves({
       pointer.inside = inside;
     };
 
+    let fallbackCleanup: any = null;
+
+    const start2DFallback = () => {
+      if (disposed) return null;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      const simplex = createSimplexNoise();
+      let animFrameId = 0;
+      let lastTime = performance.now();
+      let simBacklog = 0;
+      let time = 0;
+      let fallbackCols = 1;
+      let fallbackRows = 1;
+      let fallbackCellPx = 10;
+      let fallbackOrigin = [0, 0];
+      let fallbackWidth = 0;
+      let fallbackHeight = 0;
+      let maskData: Uint8ClampedArray | null = null;
+      let maskW = 1;
+      let maskH = 1;
+
+      let fbCharges = new Float32Array(1);
+      let fbHeights = new Float32Array(1);
+      let fbPrevHeights = new Float32Array(1);
+      let fbChargesActive = false;
+
+      const updateFallbackLayout = () => {
+        const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        fallbackWidth = Math.round(canvas.clientWidth * dpr);
+        fallbackHeight = Math.round(canvas.clientHeight * dpr);
+        canvas.width = fallbackWidth;
+        canvas.height = fallbackHeight;
+
+        const settings = settingsRef.current;
+        const targetCell = Math.max(8, settings.cellSize * dpr);
+        fallbackCols = Math.max(1, Math.round(fallbackWidth / targetCell));
+        fallbackCellPx = fallbackWidth / fallbackCols;
+        fallbackRows = Math.max(1, Math.floor(fallbackHeight / fallbackCellPx));
+        fallbackOrigin = [0, (fallbackHeight - fallbackRows * fallbackCellPx) / 2];
+
+        const total = fallbackCols * fallbackRows;
+        if (fbCharges.length !== total) {
+          fbCharges = new Float32Array(total);
+          fbHeights = new Float32Array(total);
+          fbPrevHeights = new Float32Array(total);
+          fbChargesActive = false;
+        }
+
+        const content = (settings.text || '').trim();
+        maskW = Math.max(1, Math.min(fallbackWidth, 1024));
+        maskH = Math.max(1, Math.min(fallbackHeight, 1024));
+        maskCanvas.width = maskW;
+        maskCanvas.height = maskH;
+        maskContext.fillStyle = '#000000';
+        maskContext.fillRect(0, 0, maskW, maskH);
+
+        if (content.length > 0) {
+          let fontPx = Math.max(12, settings.textSize * maskH);
+          maskContext.font = `${settings.fontWeight} ${fontPx}px ${settings.fontFamily}`;
+          const measured = maskContext.measureText(content).width;
+          const maxWidth = maskW * 0.9;
+          if (measured > maxWidth) {
+            fontPx = Math.max(12, (fontPx * maxWidth) / measured);
+            maskContext.font = `${settings.fontWeight} ${fontPx}px ${settings.fontFamily}`;
+          }
+          maskContext.textAlign = 'center';
+          maskContext.textBaseline = 'middle';
+          maskContext.fillStyle = '#ffffff';
+          maskContext.fillText(content, maskW / 2, maskH / 2);
+        }
+
+        try {
+          maskData = maskContext.getImageData(0, 0, maskW, maskH).data;
+        } catch {
+          maskData = null;
+        }
+      };
+
+      const stepFallbackRipples = () => {
+        const lastCol = fallbackCols - 1;
+        const lastRow = fallbackRows - 1;
+        let peak = 0;
+        for (let row = 0; row < fallbackRows; row++) {
+          const up = (row === 0 ? row : row - 1) * fallbackCols;
+          const down = (row === lastRow ? row : row + 1) * fallbackCols;
+          const base = row * fallbackCols;
+          for (let col = 0; col < fallbackCols; col++) {
+            const index = base + col;
+            const left = base + (col === 0 ? col : col - 1);
+            const right = base + (col === lastCol ? col : col + 1);
+            const h = fbHeights[index];
+            const laplacian = fbHeights[left] + fbHeights[right] + fbHeights[up + col] + fbHeights[down + col] - 4 * h;
+            const velocity = (h - fbPrevHeights[index]) * WAVE_FRICTION;
+            const next = (h + velocity + WAVE_SPEED * laplacian) * WAVE_DECAY;
+            fbPrevHeights[index] = next;
+            const charge = Math.min(1, Math.max(0, next));
+            fbCharges[index] = charge;
+            if (charge > peak) peak = charge;
+          }
+        }
+        const swap = fbHeights;
+        fbHeights = fbPrevHeights;
+        fbPrevHeights = swap;
+        return peak;
+      };
+
+      const fallbackSplash = (clientX: number, clientY: number) => {
+        if (!bounds) bounds = root.getBoundingClientRect();
+        const x = clientX - bounds.left;
+        const y = clientY - bounds.top;
+        if (x < 0 || y < 0 || x > bounds.width || y > bounds.height) return;
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        const settings = settingsRef.current;
+        const sigma = Math.max(0.5, ((settings.splashRadius * dpr) / fallbackCellPx) * 0.5);
+        const reach = Math.ceil(sigma * 2.5);
+        const centerCol = (x * dpr - fallbackOrigin[0]) / fallbackCellPx - 0.5;
+        const centerRow = (y * dpr - fallbackOrigin[1]) / fallbackCellPx - 0.5;
+        const minRow = Math.max(0, Math.floor(centerRow - reach));
+        const maxRow = Math.min(fallbackRows - 1, Math.ceil(centerRow + reach));
+        const minCol = Math.max(0, Math.floor(centerCol - reach));
+        const maxCol = Math.min(fallbackCols - 1, Math.ceil(centerCol + reach));
+        const strength = settings.splashStrength * 0.8;
+
+        for (let r = minRow; r <= maxRow; r++) {
+          const dy = r - centerRow;
+          for (let c = minCol; c <= maxCol; c++) {
+            const dx = c - centerCol;
+            const bump = strength * Math.exp(-(dx * dx + dy * dy) / (2 * sigma * sigma));
+            const idx = r * fallbackCols + c;
+            fbHeights[idx] = Math.min(1.2, fbHeights[idx] + bump);
+          }
+        }
+        fbChargesActive = true;
+      };
+
+      const onPointerMove = (e: PointerEvent) => {
+        if (!settingsRef.current.interactive) return;
+        fallbackSplash(e.clientX, e.clientY);
+      };
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+
+      const ro = new ResizeObserver(() => {
+        bounds = null;
+        updateFallbackLayout();
+      });
+      ro.observe(root);
+      updateFallbackLayout();
+
+      setReady(true);
+
+      const renderFallback = (now: number) => {
+        if (disposed) return;
+        const settings = settingsRef.current;
+        const deltaSeconds = Math.min(0.05, (now - lastTime) / 1000);
+        lastTime = now;
+
+        if (settings.speed > 0 && !settings.paused) {
+          time += deltaSeconds * TIME_RATE * settings.speed;
+        }
+
+        if (fbChargesActive) {
+          simBacklog = Math.min(simBacklog + deltaSeconds, SIMULATION_STEP * 4);
+          let peak = 1;
+          while (simBacklog >= SIMULATION_STEP) {
+            simBacklog -= SIMULATION_STEP;
+            peak = stepFallbackRipples();
+          }
+          if (peak < SETTLED_THRESHOLD) {
+            fbHeights.fill(0);
+            fbPrevHeights.fill(0);
+            fbCharges.fill(0);
+            fbChargesActive = false;
+          }
+        }
+
+        ctx.fillStyle = settings.backgroundColor;
+        ctx.fillRect(0, 0, fallbackWidth, fallbackHeight);
+
+        const squarePath = new Path2D();
+        const circlePath = new Path2D();
+        const trianglePath = new Path2D();
+
+        const hoverSquarePath = new Path2D();
+        const hoverCirclePath = new Path2D();
+        const hoverTrianglePath = new Path2D();
+
+        const noiseScale = NOISE_CELLS * fallbackCellPx * settings.scale;
+        const contrast = settings.contrast;
+        const brightness = settings.brightness;
+        const dotSize = Math.min(1, Math.max(0.1, settings.dotSize));
+        const halfCell = fallbackCellPx * 0.5;
+
+        for (let r = 0; r < fallbackRows; r++) {
+          const cy = fallbackOrigin[1] + (r + 0.5) * fallbackCellPx;
+          const uvY = cy / fallbackHeight;
+          const maskY = Math.floor(uvY * maskH);
+
+          for (let c = 0; c < fallbackCols; c++) {
+            const cx = fallbackOrigin[0] + (c + 0.5) * fallbackCellPx;
+            const uvX = cx / fallbackWidth;
+            const maskX = Math.floor(uvX * maskW);
+
+            if (maskData) {
+              const maskIdx = (maskY * maskW + maskX) * 4;
+              if (maskData[maskIdx] > 128) {
+                continue;
+              }
+            }
+
+            const nx = cx / noiseScale + 12.9898;
+            const ny = cy / noiseScale + 78.233;
+            const n = simplex(nx, ny + time);
+            const tone = Math.min(1, Math.max(0, (n * 0.5 + 0.5 - brightness) * contrast + 0.5));
+            const band = Math.min(2, Math.floor(tone * 3));
+
+            const idx = r * fallbackCols + c;
+            const charge = fbCharges[idx] || 0;
+            const stepped = (band + Math.floor(Math.min(0.999, charge) * 3)) % 3;
+
+            const shape = 2 - stepped;
+            const rad = halfCell * dotSize;
+            const isHover = charge > 0.15;
+
+            if (shape === 0) {
+              const p = isHover ? hoverSquarePath : squarePath;
+              p.rect(cx - rad, cy - rad, rad * 2, rad * 2);
+            } else if (shape === 1) {
+              const p = isHover ? hoverCirclePath : circlePath;
+              p.moveTo(cx + rad, cy);
+              p.arc(cx, cy, rad, 0, Math.PI * 2);
+            } else {
+              const p = isHover ? hoverTrianglePath : trianglePath;
+              p.moveTo(cx, cy - rad);
+              p.lineTo(cx + rad, cy + rad);
+              p.lineTo(cx - rad, cy + rad);
+              p.closePath();
+            }
+          }
+        }
+
+        ctx.fillStyle = settings.color;
+        ctx.fill(squarePath);
+        ctx.fill(circlePath);
+        ctx.fill(trianglePath);
+
+        ctx.fillStyle = settings.hoverColor;
+        ctx.fill(hoverSquarePath);
+        ctx.fill(hoverCirclePath);
+        ctx.fill(hoverTrianglePath);
+
+        animFrameId = requestAnimationFrame(renderFallback);
+      };
+
+      animFrameId = requestAnimationFrame(renderFallback);
+
+      return () => {
+        cancelAnimationFrame(animFrameId);
+        window.removeEventListener('pointermove', onPointerMove);
+        ro.disconnect();
+      };
+    };
+
     const reportFailure = (error: any) => {
-      if (disposed || failed) return;
+      if (disposed) return;
+      if (failed) return;
       failed = true;
       if (frameId) cancelAnimationFrame(frameId);
       frameId = 0;
       resizeObserver?.disconnect();
       visibilityObserver?.disconnect();
-      unsubscribeGpuError?.();
+      try { unsubscribeGpuError?.(); } catch {}
       applySettingsRef.current = () => {};
       applyMaskRef.current = () => {};
       const failedGpu = gpu;
       gpu = undefined;
-      failedGpu?.dispose();
-      setReady(false);
-      onErrorRef.current?.(error instanceof Error ? error : new Error(String(error)));
+      try { failedGpu?.dispose(); } catch {}
+
+      console.warn('[ShapeWaves] WebGPU unavailable or failed. Activating high-performance 2D Canvas fallback.', error);
+      fallbackCleanup = start2DFallback();
     };
 
     const measureSurface = () => {
@@ -813,6 +1142,9 @@ export default function ShapeWaves({
 
     return () => {
       disposed = true;
+      if (fallbackCleanup) {
+        try { fallbackCleanup(); } catch {}
+      }
       wakeRenderer = () => {};
       applySettingsRef.current = () => {};
       applyMaskRef.current = () => {};

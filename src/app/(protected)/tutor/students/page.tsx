@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 
@@ -6,48 +7,66 @@ export default async function TutorStudentsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Fetch students via the assignment table
-  const { data: assignments } = await supabase
-    .from('tutor_student_assignments')
-    .select('student_id, profiles!student_id(full_name, email, status, department, year)')
-    .eq('tutor_id', user?.id)
-    .eq('status', 'active')
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient.from('profiles').select('role').eq('id', user?.id).single()
+  const isAdmin = profile?.role === 'super_admin' || profile?.role === 'admin'
 
-  const students = assignments?.map(a => a.profiles)
+  let students: any[] = []
+
+  if (isAdmin) {
+    const { data: allStudents } = await adminClient
+      .from('profiles')
+      .select('id, full_name, email, status, department, year')
+      .eq('role', 'student')
+      .order('full_name')
+    students = allStudents || []
+  } else if (user) {
+    const { data: assignments } = await adminClient
+      .from('tutor_student_assignments')
+      .select('student_id, profiles!student_id(id, full_name, email, status, department, year)')
+      .eq('tutor_id', user.id)
+      .eq('status', 'active')
+    students = assignments?.map((a: any) => a.profiles).filter(Boolean) || []
+  }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">My Students</h1>
+    <div className="space-y-6 max-w-5xl mx-auto">
+      <div>
+        <h1 className="text-2xl font-bold">My Assigned Students</h1>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {isAdmin ? 'Showing all registered students (Administrator view).' : 'Students assigned to you by administrators for concept mentoring and attendance reviews.'}
+        </p>
+      </div>
 
-      <div className="border rounded-lg overflow-hidden bg-card">
+      <div className="border rounded-lg overflow-hidden bg-card/90 backdrop-blur-md">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
+              <TableHead>Student Name</TableHead>
+              <TableHead>Email Address</TableHead>
               <TableHead>Department</TableHead>
               <TableHead>Year</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {students?.map((student: any, i) => (
-              <TableRow key={i}>
-                <TableCell className="font-medium">{student.full_name}</TableCell>
-                <TableCell>{student.email}</TableCell>
-                <TableCell>{student.department || '-'}</TableCell>
-                <TableCell>{student.year || '-'}</TableCell>
-                <TableCell>
-                  <Badge variant={student.status === 'active' ? 'default' : 'secondary'} className="capitalize">
-                    {student.status}
+            {students.map((student: any) => (
+              <TableRow key={student.id}>
+                <TableCell className="font-semibold text-sm">{student.full_name}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{student.email}</TableCell>
+                <TableCell className="text-xs">{student.department || 'Computer Science'}</TableCell>
+                <TableCell className="text-xs">{student.year || '3rd Year'}</TableCell>
+                <TableCell className="text-right">
+                  <Badge variant={student.status === 'active' ? 'default' : 'secondary'} className="capitalize text-[10px]">
+                    {student.status || 'Active'}
                   </Badge>
                 </TableCell>
               </TableRow>
             ))}
-            {(!students || students.length === 0) && (
+            {students.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                  No students assigned to you yet.
+                <TableCell colSpan={5} className="text-center py-10 text-muted-foreground text-xs">
+                  No students assigned to you yet. Ask an administrator to assign students to your account!
                 </TableCell>
               </TableRow>
             )}
