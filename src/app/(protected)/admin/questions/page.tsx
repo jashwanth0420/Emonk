@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import Link from 'next/link'
 import { Sparkles, PlusCircle } from 'lucide-react'
 import { reviewGeneratedQuestionAction, createQuestionAction } from '../actions'
+import { QuestionDetailsModal } from './QuestionDetailsModal'
 
 export default async function AdminQuestionsPage({
   searchParams
@@ -150,8 +151,8 @@ export default async function AdminQuestionsPage({
               {questions?.map((q) => (
                 <TableRow key={q.id}>
                   <TableCell className="font-semibold text-xs whitespace-nowrap">{q.topics?.name}</TableCell>
-                  <TableCell className="max-w-xs truncate text-xs" title={q.question_text}>
-                    {q.question_text}
+                  <TableCell className="max-w-xs text-xs">
+                    <QuestionDetailsModal question={q} />
                   </TableCell>
                   <TableCell className="capitalize text-xs">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${

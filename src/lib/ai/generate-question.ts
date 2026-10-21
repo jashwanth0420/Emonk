@@ -2,9 +2,21 @@ import { aiChat } from './client'
 import { QUESTION_GENERATOR_SYSTEM } from './prompts'
 import { GeneratedQuestionsListSchema } from './schemas'
 
-export async function generateQuestions(topic: string, type: string, difficulty: string, count: number = 3) {
+export async function generateQuestions(
+  topic: string,
+  type: string,
+  difficulty: string,
+  count: number = 3,
+  customPrompt?: string
+) {
+  const instructions = customPrompt && customPrompt.trim().length > 0
+    ? `\nSpecific Admin Guidance/Focus Prompt:\n"${customPrompt.trim()}"\n`
+    : ''
+
   const userPrompt = `Generate ${count} ${difficulty}-level questions about "${topic}" of type "${type}".
-  
+${instructions}
+Focus on clear, high-quality assessment questions tailored to evaluate real student understanding.
+
 Required JSON Schema:
 {
   "questions": [

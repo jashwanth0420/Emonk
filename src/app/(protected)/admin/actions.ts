@@ -195,9 +195,10 @@ export async function createQuestionAction(formData: FormData) {
 
 export async function generateQuestionsAction(formData: FormData) {
   const topicId = formData.get('topic_id') as string
-  const type = formData.get('type') as string
-  const difficulty = formData.get('difficulty') as string
+  const type = (formData.get('type') as string) || 'conceptual'
+  const difficulty = (formData.get('difficulty') as string) || 'medium'
   const count = parseInt(formData.get('count') as string, 10) || 2
+  const customPrompt = (formData.get('custom_prompt') as string) || ''
 
   const adminClient = createAdminClient()
   const supabase = await createClient()
@@ -205,11 +206,11 @@ export async function generateQuestionsAction(formData: FormData) {
   const { data: topic } = await adminClient.from('topics').select('name').eq('id', topicId).single()
   
   if (!topic) {
-    redirect(`/admin/ai?error=${encodeURIComponent('Topic not found')}`)
+    redirect(`/admin/ai?error=${encodeURIComponent('Please select a curriculum topic')}`)
   }
 
   try {
-    const aiResult = await generateQuestions(topic.name, type, difficulty, count)
+    const aiResult = await generateQuestions(topic.name, type, difficulty, count, customPrompt)
     
     // Insert generated questions into the bank
     const inserts = aiResult.questions.map(q => ({
@@ -237,10 +238,11 @@ export async function generateQuestionsAction(formData: FormData) {
     })
 
     revalidatePath('/admin/questions')
-    redirect(`/admin/questions?success=${encodeURIComponent(`Successfully generated ${count} questions! Review and approve them below.`)}`)
   } catch (error: any) {
     redirect(`/admin/ai?error=${encodeURIComponent(error.message || 'AI service unavailable')}`)
   }
+
+  redirect(`/admin/questions?success=${encodeURIComponent(`Successfully generated ${count} questions! Review and approve them below.`)}`)
 }
 
 export async function reviewGeneratedQuestionAction(formData: FormData) {

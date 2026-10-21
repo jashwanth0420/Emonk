@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Sparkles, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -45,7 +46,7 @@ export default async function AdminAIGenerationPage({
             <CardTitle>AI Question Generator</CardTitle>
           </div>
           <CardDescription>
-            Powered by Groq AI (<code className="text-xs">llama-3.3-70b-versatile</code>). Automatically drafts technical questions, expected concepts, and code assessment prompts into your Question Bank.
+            Powered by Groq AI. Automatically drafts technical questions, expected concepts, and code assessment prompts into your Question Bank.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -87,13 +88,30 @@ export default async function AdminAIGenerationPage({
                   id="difficulty"
                   name="difficulty"
                   required
+                  defaultValue="medium"
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                 >
                   <option value="easy">Easy (Fundamentals)</option>
-                  <option value="medium" selected>Medium (Standard Interview)</option>
+                  <option value="medium">Medium (Standard Interview)</option>
                   <option value="hard">Hard (Advanced Problem)</option>
                 </select>
               </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="custom_prompt">
+                Prompt / Specific Requirements <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
+              </Label>
+              <Textarea
+                id="custom_prompt"
+                name="custom_prompt"
+                placeholder="e.g. Focus on memory leaks, closures, or time complexity of array shift/unshift vs push/pop with practical code snippets..."
+                rows={3}
+                className="bg-transparent"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Type custom guidance, edge cases, subtopics, or interview style prompts for the AI to follow.
+              </p>
             </div>
 
             <div className="space-y-1.5">

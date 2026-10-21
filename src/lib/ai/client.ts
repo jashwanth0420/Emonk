@@ -14,7 +14,7 @@ export async function aiChat(systemPrompt: string, userPrompt: string, temperatu
 
   try {
     const response = await groq.chat.completions.create({
-      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+      model: process.env.GROQ_MODEL || 'qwen/qwen3.8-27b',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
@@ -23,8 +23,8 @@ export async function aiChat(systemPrompt: string, userPrompt: string, temperatu
       response_format: jsonMode ? { type: "json_object" } : { type: "text" }
     })
     return response.choices[0]?.message?.content || '{}'
-  } catch (error) {
+  } catch (error: any) {
     console.error("Groq API Error:", error)
-    throw new Error("AI service unavailable")
+    throw new Error(error?.message || "AI service unavailable")
   }
 }
