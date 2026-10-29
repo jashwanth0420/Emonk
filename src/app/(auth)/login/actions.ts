@@ -22,12 +22,20 @@ export async function loginAction(formData: FormData) {
   const adminClient = createAdminClient()
   const { data: profile } = await adminClient.from('profiles').select('role').eq('id', data.user.id).single()
   
-  const basePath = (profile?.role === 'super_admin' || profile?.role === 'admin') ? 'admin' : (profile?.role || 'student')
+  const role = profile?.role || 'student'
+  const basePath = (role === 'super_admin' || role === 'admin') ? 'admin' : role
+
+  // Store user role in a fast cookie to eliminate DB roundtrips in middleware
+  const cookieStore = await (await import('next/headers')).cookies()
+  cookieStore.set('user_role', role, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 7 })
+
   redirect(`/${basePath}/dashboard`)
 }
 
 export async function logoutAction() {
   const supabase = await createClient()
   await supabase.auth.signOut()
+  const cookieStore = await (await import('next/headers')).cookies()
+  cookieStore.delete('user_role')
   redirect('/login')
 }

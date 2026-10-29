@@ -46,9 +46,13 @@ export async function updateSession(request: NextRequest) {
 
   // Logged in and trying to access login page? Redirect to their dashboard
   if (user && isAuthRoute) {
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient.from('profiles').select('role').eq('id', user.id).single()
-    const role = profile?.role || 'student'
+    let role = request.cookies.get('user_role')?.value
+    if (!role) {
+      const adminClient = createAdminClient()
+      const { data: profile } = await adminClient.from('profiles').select('role').eq('id', user.id).single()
+      role = profile?.role || 'student'
+      supabaseResponse.cookies.set('user_role', role, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 7 })
+    }
     const url = request.nextUrl.clone()
     url.pathname = getRoleBasePath(role) + '/dashboard'
     return NextResponse.redirect(url)
@@ -56,9 +60,13 @@ export async function updateSession(request: NextRequest) {
 
   // Logged in and accessing a protected route? Enforce correct role routing
   if (user && isProtectedRoute) {
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient.from('profiles').select('role').eq('id', user.id).single()
-    const role = profile?.role || 'student'
+    let role = request.cookies.get('user_role')?.value
+    if (!role) {
+      const adminClient = createAdminClient()
+      const { data: profile } = await adminClient.from('profiles').select('role').eq('id', user.id).single()
+      role = profile?.role || 'student'
+      supabaseResponse.cookies.set('user_role', role, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 7 })
+    }
     const correctBasePath = getRoleBasePath(role)
 
     // Check if user is on the wrong section
