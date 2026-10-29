@@ -45,7 +45,7 @@ export default async function StudentsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Students Directory</h1>
+        <h1 className="page-title text-foreground">Students Directory</h1>
       </div>
 
       {success && (
@@ -62,7 +62,7 @@ export default async function StudentsPage({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Create Student Form */}
-        <div className="lg:col-span-1 border rounded-lg p-5 bg-card/90 backdrop-blur-md h-fit space-y-4">
+        <div className="lg:col-span-1 border rounded-lg p-5 bg-card shadow-sm h-fit space-y-4">
           <h2 className="text-lg font-semibold">Create New Student</h2>
           <p className="text-xs text-muted-foreground">Creates auth login credentials and a student profile.</p>
           <form action={createUserAction} className="space-y-4">
@@ -84,7 +84,7 @@ export default async function StudentsPage({
         </div>
 
         {/* Students Table */}
-        <div className="lg:col-span-2 border rounded-lg overflow-hidden bg-card/90 backdrop-blur-md">
+        <div className="lg:col-span-2 border rounded-lg overflow-hidden bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>

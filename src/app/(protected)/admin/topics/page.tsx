@@ -22,7 +22,7 @@ export default async function TopicsPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Curriculum Topics</h1>
+        <h1 className="page-title text-foreground">Curriculum Topics</h1>
       </div>
 
       {success && (
@@ -38,7 +38,7 @@ export default async function TopicsPage({
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 border rounded-lg p-5 bg-card/90 backdrop-blur-md h-fit space-y-4">
+        <div className="lg:col-span-1 border rounded-lg p-5 bg-card shadow-sm h-fit space-y-4">
           <h2 className="text-lg font-semibold">Add New Topic</h2>
           <p className="text-xs text-muted-foreground">Topics are selected by students during attendance and used for targeted questions.</p>
           <form action={createTopicAction} className="space-y-4">
@@ -58,7 +58,7 @@ export default async function TopicsPage({
           </form>
         </div>
 
-        <div className="lg:col-span-2 border rounded-lg overflow-hidden bg-card/90 backdrop-blur-md">
+        <div className="lg:col-span-2 border rounded-lg overflow-hidden bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>

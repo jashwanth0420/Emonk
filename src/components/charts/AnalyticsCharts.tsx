@@ -1,9 +1,19 @@
 'use client'
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export function AnalyticsCharts({ topicData, workloadData }: { topicData: any[], workloadData: any[] }) {
+interface TopicDataItem {
+  name: string
+  count: number
+}
+
+interface WorkloadDataItem {
+  name: string
+  pending: number
+}
+
+export function AnalyticsCharts({ topicData, workloadData }: { topicData: TopicDataItem[], workloadData: WorkloadDataItem[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
       <Card>

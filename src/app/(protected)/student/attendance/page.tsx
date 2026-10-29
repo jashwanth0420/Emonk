@@ -3,7 +3,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
@@ -29,10 +28,10 @@ export default async function AttendanceFlowPage() {
   if (!attendance) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <Card className="max-w-md text-center p-6 bg-card/90 backdrop-blur-md space-y-4">
+        <Card className="max-w-md text-center p-6 bg-card shadow-sm space-y-4">
           <h2 className="text-xl font-bold">No Active Check-in Found</h2>
           <p className="text-xs text-muted-foreground">
-            Please navigate to your dashboard and check into today's active session first.
+            Please navigate to your dashboard and check into today&apos;s active session first.
           </p>
           <Link 
             href="/student/dashboard" 
@@ -51,10 +50,10 @@ export default async function AttendanceFlowPage() {
     
     return (
       <div className="max-w-2xl mx-auto mt-6">
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-orange-500" />
+              <BookOpen className="w-5 h-5 text-accent" />
               <CardTitle>What did you study today?</CardTitle>
             </div>
             <CardDescription>
@@ -73,7 +72,7 @@ export default async function AttendanceFlowPage() {
                       type="checkbox" 
                       name="topics" 
                       value={topic.id}
-                      className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500" 
+                      className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-orange-500" 
                     />
                     <div className="grid gap-0.5 text-xs">
                       <span className="font-semibold text-sm">{topic.name}</span>
@@ -83,7 +82,7 @@ export default async function AttendanceFlowPage() {
                 ))}
               </div>
               
-              <Button type="submit" className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium">
+              <Button type="submit" className="w-full bg-accent hover:bg-accent-hover text-white font-medium transition-colors">
                 Continue to Assessment Question
               </Button>
             </form>
@@ -97,10 +96,10 @@ export default async function AttendanceFlowPage() {
   if (attendance.status === 'question_assigned') {
     return (
       <div className="max-w-3xl mx-auto mt-6">
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-orange-500" />
+              <HelpCircle className="w-5 h-5 text-accent" />
               <CardTitle>Session Assessment Question</CardTitle>
             </div>
             <CardDescription>
@@ -138,7 +137,7 @@ export default async function AttendanceFlowPage() {
                 />
               </div>
               
-              <Button type="submit" className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium">
+              <Button type="submit" className="w-full bg-accent hover:bg-accent-hover text-white font-medium transition-colors">
                 Submit Answer for Verification
               </Button>
             </form>
@@ -151,7 +150,7 @@ export default async function AttendanceFlowPage() {
   // STATE 3: Pending Review or Approved
   return (
     <div className="max-w-xl mx-auto mt-12 text-center space-y-5">
-      <Card className="p-8 bg-card/90 backdrop-blur-md space-y-4">
+      <Card className="p-8 bg-card shadow-sm space-y-4">
         <div className="mx-auto w-14 h-14 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
           <CheckCircle2 className="w-8 h-8" />
         </div>
@@ -160,7 +159,7 @@ export default async function AttendanceFlowPage() {
           Your attendance log and conceptual answer have been securely recorded.
         </p>
         <div className="p-3 bg-muted/50 rounded-lg inline-block text-xs font-mono">
-          Current Status: <strong className="uppercase text-orange-600 font-bold">{attendance.status.replace('_', ' ')}</strong>
+          Current Status: <strong className="uppercase text-accent font-bold">{attendance.status.replace('_', ' ')}</strong>
         </div>
         <div>
           <Link 

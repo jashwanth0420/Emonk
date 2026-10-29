@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { reviewAttendanceAction } from '../../actions'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 export default async function ReviewDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -31,10 +32,10 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Review Attendance</h1>
-        <a href="/tutor/attendance" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+        <h1 className="page-title text-foreground">Review Attendance</h1>
+        <Link href="/tutor/attendance" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
           Back to List
-        </a>
+        </Link>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
@@ -42,7 +43,7 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
           <Card>
             <CardHeader>
               <CardTitle>Assessment Data</CardTitle>
-              <CardDescription>Review the student's submission carefully.</CardDescription>
+              <CardDescription>Review the student&apos;s submission carefully.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
@@ -53,7 +54,7 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
               </div>
 
               <div>
-                <h3 className="font-semibold text-sm text-muted-foreground mb-1">Student's Answer</h3>
+                <h3 className="font-semibold text-sm text-muted-foreground mb-1">Student&apos;s Answer</h3>
                 <p className="bg-muted p-4 rounded-md text-sm whitespace-pre-wrap font-medium">
                   {attempt?.answer_text || "No answer submitted."}
                 </p>

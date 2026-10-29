@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Eye } from 'lucide-react'
@@ -43,7 +42,7 @@ export function QuestionDetailsModal({ question }: QuestionDetailsModalProps) {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg bg-card/95 backdrop-blur-md border shadow-2xl">
+        <DialogContent className="max-w-lg bg-card shadow-lg border shadow-2xl">
           <DialogHeader>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -84,7 +83,7 @@ export function QuestionDetailsModal({ question }: QuestionDetailsModalProps) {
                   {question.expected_concepts.map((concept, idx) => (
                     <span
                       key={idx}
-                      className="px-2 py-1 rounded bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 text-[11px] font-medium"
+                      className="px-2 py-1 rounded bg-accent-soft text-accent dark:text-orange-400 border border-accent/30 text-[11px] font-medium"
                     >
                       {concept}
                     </span>

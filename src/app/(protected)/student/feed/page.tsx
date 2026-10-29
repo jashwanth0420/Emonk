@@ -15,7 +15,7 @@ export default async function StudentFeedPage() {
     <div className="space-y-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-2">
         <Bell className="h-6 w-6" />
-        <h1 className="text-2xl font-bold">Central Feed</h1>
+        <h1 className="page-title text-foreground">Central Feed</h1>
       </div>
 
       <div className="space-y-6">

@@ -39,7 +39,7 @@ export default async function TutorDashboard() {
   const pendingCount = pendingReviews?.length || 0
 
   // Approved count
-  let approvedQuery = adminClient
+  const approvedQuery = adminClient
     .from('attendance')
     .select('*', { count: 'exact', head: true })
     .eq('status', 'approved')
@@ -50,7 +50,7 @@ export default async function TutorDashboard() {
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="page-title text-foreground">
           Welcome back, {profile?.full_name?.split(' ')[0] || 'Tutor'}!
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -59,7 +59,7 @@ export default async function TutorDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm">
           <CardHeader className="p-4 pb-2">
             <CardDescription className="flex items-center justify-between text-xs">
               My Assigned Students <Users className="w-4 h-4 text-blue-500" />
@@ -70,7 +70,7 @@ export default async function TutorDashboard() {
           </CardHeader>
         </Card>
         
-        <Card className="bg-card/90 backdrop-blur-md border-amber-500/30">
+        <Card className="bg-card shadow-sm border-amber-500/30">
           <CardHeader className="p-4 pb-2">
             <CardDescription className="flex items-center justify-between text-xs text-amber-600 font-medium">
               Pending Reviews <CheckSquare className="w-4 h-4 text-amber-500" />
@@ -81,7 +81,7 @@ export default async function TutorDashboard() {
           </CardHeader>
         </Card>
 
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm">
           <CardHeader className="p-4 pb-2">
             <CardDescription className="flex items-center justify-between text-xs">
               Reviewed by Me <UserCheck className="w-4 h-4 text-emerald-500" />
@@ -94,7 +94,7 @@ export default async function TutorDashboard() {
       </div>
 
       {/* Pending reviews queue */}
-      <Card className="bg-card/90 backdrop-blur-md">
+      <Card className="bg-card shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div>
             <CardTitle className="text-base font-semibold">Submissions Awaiting Verification</CardTitle>

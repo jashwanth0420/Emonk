@@ -27,7 +27,7 @@ export default async function SchedulesPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Session Schedules</h1>
+        <h1 className="page-title text-foreground">Session Schedules</h1>
       </div>
 
       {success && (
@@ -43,7 +43,7 @@ export default async function SchedulesPage({
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 border rounded-lg p-5 bg-card/90 backdrop-blur-md h-fit space-y-4">
+        <div className="lg:col-span-1 border rounded-lg p-5 bg-card shadow-sm h-fit space-y-4">
           <h2 className="text-lg font-semibold">Create New Schedule</h2>
           <p className="text-xs text-muted-foreground">Students can check into active sessions on the designated date.</p>
           <form action={createScheduleAction} className="space-y-4">
@@ -87,7 +87,7 @@ export default async function SchedulesPage({
           </form>
         </div>
 
-        <div className="lg:col-span-2 border rounded-lg overflow-hidden bg-card/90 backdrop-blur-md">
+        <div className="lg:col-span-2 border rounded-lg overflow-hidden bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>

@@ -23,7 +23,7 @@ export default async function StudentProfilePage({
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold">My Profile</h1>
+      <h1 className="page-title text-foreground">My Profile</h1>
 
       {success && (
         <div className="p-4 rounded-md bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-300 text-sm">

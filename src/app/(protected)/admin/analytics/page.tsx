@@ -19,16 +19,18 @@ export default async function AdminAnalyticsPage() {
     count: studentTopics?.filter(st => st.topic_id === t.id).length || 0
   })).sort((a, b) => b.count - a.count).slice(0, 5) || []
 
-  // Tutor Workload Data (approximated for demo)
+  // Tutor Workload Data (calculated deterministically from tutor assignments)
   const { data: tutors } = await supabase.from('profiles').select('id, full_name').eq('role', 'tutor')
+  const { data: assignments } = await supabase.from('tutor_student_assignments').select('tutor_id, is_active')
+  
   const workloadData = tutors?.map(t => ({
     name: t.full_name.split(' ')[0],
-    pending: Math.floor(Math.random() * 10) // In reality, we'd group by tutor_student_assignments
+    pending: assignments?.filter(a => a.tutor_id === t.id && a.is_active).length || 0
   })) || []
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold">Analytics & Reporting</h1>
+      <h1 className="page-title text-foreground">Analytics & Reporting</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>

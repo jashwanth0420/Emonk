@@ -32,13 +32,13 @@ export default async function TutorStudentsPage() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold">My Assigned Students</h1>
+        <h1 className="page-title text-foreground">My Assigned Students</h1>
         <p className="text-xs text-muted-foreground mt-0.5">
           {isAdmin ? 'Showing all registered students (Administrator view).' : 'Students assigned to you by administrators for concept mentoring and attendance reviews.'}
         </p>
       </div>
 
-      <div className="border rounded-lg overflow-hidden bg-card/90 backdrop-blur-md">
+      <div className="border rounded-lg overflow-hidden bg-card shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>

@@ -30,14 +30,14 @@ export default async function AdminQuestionsPage({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Question Bank</h1>
+          <h1 className="page-title text-foreground">Question Bank</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             Targeted concept questions automatically presented to students upon session check-in.
           </p>
         </div>
         <Link 
           href="/admin/ai" 
-          className="inline-flex items-center gap-1.5 rounded-md text-xs font-medium bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow hover:opacity-90 h-9 px-3.5 py-2"
+          className="inline-flex items-center gap-1.5 rounded-md text-xs font-medium bg-accent hover:bg-accent-hover text-white transition-colors shadow hover:opacity-90 h-9 px-3.5 py-2"
         >
           <Sparkles className="w-3.5 h-3.5" /> Generate in Bulk with AI
         </Link>
@@ -57,7 +57,7 @@ export default async function AdminQuestionsPage({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Manual Question Creator */}
-        <div className="lg:col-span-1 border rounded-lg p-5 bg-card/90 backdrop-blur-md h-fit space-y-4">
+        <div className="lg:col-span-1 border rounded-lg p-5 bg-card shadow-sm h-fit space-y-4">
           <div className="flex items-center gap-1.5">
             <PlusCircle className="w-4 h-4 text-primary" />
             <h2 className="text-lg font-semibold">Add Question Manually</h2>
@@ -136,7 +136,7 @@ export default async function AdminQuestionsPage({
         </div>
 
         {/* Question Bank Table */}
-        <div className="lg:col-span-2 border rounded-lg overflow-hidden bg-card/90 backdrop-blur-md">
+        <div className="lg:col-span-2 border rounded-lg overflow-hidden bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>

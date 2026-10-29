@@ -61,21 +61,21 @@ export default async function StudentDashboard() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="page-title text-foreground">
           Welcome back, {profile?.full_name?.split(' ')[0] || 'Student'}!
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Complete today's concept assessment to mark verified attendance.
+          Complete today&apos;s concept assessment to mark verified attendance.
         </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Today's / Active Session Card */}
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Clock className="w-5 h-5 text-orange-500" /> Current Session
+                <Clock className="w-5 h-5 text-accent" /> Current Session
               </CardTitle>
               <Badge variant="outline" className="text-xs">
                 {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}
@@ -107,7 +107,7 @@ export default async function StudentDashboard() {
 
                   {!attendanceRecord ? (
                     <form action={checkInAction.bind(null, activeSchedule.id)}>
-                      <Button type="submit" className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium hover:opacity-90">
+                      <Button type="submit" className="w-full bg-accent hover:bg-accent-hover text-white font-medium transition-colors hover:opacity-90">
                         Check In & Begin Assessment
                       </Button>
                     </form>
@@ -150,7 +150,7 @@ export default async function StudentDashboard() {
         {/* Stats & Recent History */}
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <Card className="bg-card/90 backdrop-blur-md">
+            <Card className="bg-card shadow-sm">
               <CardHeader className="p-4 pb-2">
                 <CardDescription className="text-xs">Approved Sessions</CardDescription>
                 <CardTitle className="text-2xl font-bold text-green-600 flex items-center gap-2">
@@ -159,7 +159,7 @@ export default async function StudentDashboard() {
               </CardHeader>
             </Card>
 
-            <Card className="bg-card/90 backdrop-blur-md">
+            <Card className="bg-card shadow-sm">
               <CardHeader className="p-4 pb-2">
                 <CardDescription className="text-xs">Under Review</CardDescription>
                 <CardTitle className="text-2xl font-bold text-amber-500">
@@ -169,7 +169,7 @@ export default async function StudentDashboard() {
             </Card>
           </div>
 
-          <Card className="bg-card/90 backdrop-blur-md">
+          <Card className="bg-card shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <CardTitle className="text-base font-semibold">Recent Attendance Log</CardTitle>
               <Link href="/student/calendar" className="text-xs text-blue-600 hover:underline flex items-center gap-1">

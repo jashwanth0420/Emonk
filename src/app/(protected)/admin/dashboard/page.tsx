@@ -39,7 +39,7 @@ export default async function AdminDashboard() {
       {/* Header banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Super Admin Overview</h1>
+          <h1 className="page-title text-foreground">Super Admin Overview</h1>
           <p className="text-sm text-muted-foreground mt-1">
             System health, active student attendances, and automated verification pipeline.
           </p>
@@ -47,13 +47,13 @@ export default async function AdminDashboard() {
         <div className="flex items-center gap-2">
           <Link
             href="/admin/ai"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium text-xs shadow hover:opacity-95 transition"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-accent hover:bg-accent-hover text-white font-medium transition-colors text-xs shadow hover:opacity-95 transition"
           >
             <Sparkles className="w-3.5 h-3.5" /> AI Generator
           </Link>
           <Link
             href="/admin/schedules"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 font-medium text-xs shadow hover:opacity-90 transition"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90 font-medium text-xs shadow hover:opacity-90 transition"
           >
             <PlusCircle className="w-3.5 h-3.5" /> New Schedule
           </Link>
@@ -62,57 +62,57 @@ export default async function AdminDashboard() {
 
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm border">
           <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between text-xs">
+            <CardDescription className="flex items-center justify-between card-label">
               Students <Users className="w-4 h-4 text-blue-500" />
             </CardDescription>
-            <CardTitle className="text-2xl font-bold">{studentCount || 0}</CardTitle>
+            <CardTitle className="stat-number">{studentCount || 0}</CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm border">
           <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between text-xs">
+            <CardDescription className="flex items-center justify-between card-label">
               Tutors <UserSquare className="w-4 h-4 text-emerald-500" />
             </CardDescription>
-            <CardTitle className="text-2xl font-bold">{tutorCount || 0}</CardTitle>
+            <CardTitle className="stat-number">{tutorCount || 0}</CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm border">
           <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between text-xs">
+            <CardDescription className="flex items-center justify-between card-label">
               Curriculum Topics <BookOpen className="w-4 h-4 text-purple-500" />
             </CardDescription>
-            <CardTitle className="text-2xl font-bold">{topicCount || 0}</CardTitle>
+            <CardTitle className="stat-number">{topicCount || 0}</CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm border">
           <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between text-xs">
+            <CardDescription className="flex items-center justify-between card-label">
               Active Schedules <Calendar className="w-4 h-4 text-indigo-500" />
             </CardDescription>
-            <CardTitle className="text-2xl font-bold">{scheduleCount || 0}</CardTitle>
+            <CardTitle className="stat-number">{scheduleCount || 0}</CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm border">
           <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between text-xs">
+            <CardDescription className="flex items-center justify-between card-label">
               Question Bank <HelpCircle className="w-4 h-4 text-cyan-500" />
             </CardDescription>
-            <CardTitle className="text-2xl font-bold">{questionCount || 0}</CardTitle>
+            <CardTitle className="stat-number">{questionCount || 0}</CardTitle>
           </CardHeader>
         </Card>
 
-        <Card className="bg-card/90 backdrop-blur-md border-amber-500/30">
+        <Card className="bg-card shadow-sm border border-amber-500/30">
           <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between text-xs text-amber-600 font-medium">
+            <CardDescription className="flex items-center justify-between card-label text-amber-600 font-medium">
               Pending Reviews <CheckSquare className="w-4 h-4 text-amber-500" />
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-amber-600">{pendingReviewCount || 0}</CardTitle>
+            <CardTitle className="stat-number text-amber-600">{pendingReviewCount || 0}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -120,10 +120,10 @@ export default async function AdminDashboard() {
       {/* Main Sections Grid */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Recent Attendance Submissions */}
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm border">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div>
-              <CardTitle className="text-base font-semibold">Recent Attendance Records</CardTitle>
+              <CardTitle className="section-title">Recent Attendance Records</CardTitle>
               <CardDescription className="text-xs">Latest student submissions across all schedules</CardDescription>
             </div>
             <Link href="/admin/analytics" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
@@ -153,10 +153,10 @@ export default async function AdminDashboard() {
         </Card>
 
         {/* Upcoming Schedules & Quick Setup */}
-        <Card className="bg-card/90 backdrop-blur-md">
+        <Card className="bg-card shadow-sm border">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div>
-              <CardTitle className="text-base font-semibold">Active & Upcoming Sessions</CardTitle>
+              <CardTitle className="section-title">Active & Upcoming Sessions</CardTitle>
               <CardDescription className="text-xs">Scheduled learning blocks students can check into</CardDescription>
             </div>
             <Link href="/admin/schedules" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
@@ -178,7 +178,7 @@ export default async function AdminDashboard() {
               ))}
               {(!upcomingSchedules || upcomingSchedules.length === 0) && (
                 <div className="text-center py-8 text-muted-foreground text-xs">
-                  No upcoming schedules. Click "New Schedule" above to create one.
+                  No upcoming schedules. Click &ldquo;New Schedule&rdquo; above to create one.
                 </div>
               )}
             </div>

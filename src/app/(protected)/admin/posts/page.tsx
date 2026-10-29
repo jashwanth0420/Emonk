@@ -12,7 +12,7 @@ export default async function AdminPostsPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold">Announcements Feed</h1>
+      <h1 className="page-title text-foreground">Announcements Feed</h1>
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-1 border rounded-lg p-4 bg-card h-fit">

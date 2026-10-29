@@ -38,7 +38,7 @@ export default async function StudentProgressPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold">My Progress</h1>
+      <h1 className="page-title text-foreground">My Progress</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>

@@ -9,7 +9,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center p-4">
-      <Card className="relative z-10 w-full max-w-sm bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md shadow-2xl border border-black/10">
+      <Card className="relative z-10 w-full max-w-sm bg-card shadow-sm shadow-2xl border border-border">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Emonk Attendance</CardTitle>
           <CardDescription className="text-center">Enter your credentials below to login</CardDescription>

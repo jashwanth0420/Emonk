@@ -39,10 +39,10 @@ export default async function AdminAIGenerationPage({
         </div>
       )}
 
-      <Card className="bg-card/90 backdrop-blur-md">
+      <Card className="bg-card shadow-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-orange-500" />
+            <Sparkles className="w-5 h-5 text-accent" />
             <CardTitle>AI Question Generator</CardTitle>
           </div>
           <CardDescription>
@@ -120,7 +120,7 @@ export default async function AdminAIGenerationPage({
               <p className="text-[11px] text-muted-foreground">Generated questions will be saved as pending review for you to inspect and approve.</p>
             </div>
 
-            <Button type="submit" className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:opacity-90">
+            <Button type="submit" className="w-full bg-accent hover:bg-accent-hover text-white transition-colors">
               Generate Questions via Groq AI
             </Button>
           </form>

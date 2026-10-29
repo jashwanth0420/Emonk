@@ -24,7 +24,7 @@ export default async function StudentCalendarPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold">Attendance Calendar</h1>
+      <h1 className="page-title text-foreground">Attendance Calendar</h1>
 
       <Card>
         <CardHeader>
@@ -46,7 +46,7 @@ export default async function StudentCalendarPage() {
                   </Badge>
                   {record.tutor_feedback && (
                     <span className="text-xs mt-2 text-muted-foreground italic max-w-xs text-right line-clamp-1" title={record.tutor_feedback}>
-                      "{record.tutor_feedback}"
+                      &ldquo;{record.tutor_feedback}&rdquo;
                     </span>
                   )}
                 </div>
