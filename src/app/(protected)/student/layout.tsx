@@ -1,33 +1,25 @@
 import { SidebarNav, NavGroup } from '@/components/layout/SidebarNav'
-import {
-  LayoutDashboard,
-  CheckSquare,
-  CalendarDays,
-  TrendingUp,
-  Rss,
-  User
-} from 'lucide-react'
 
 const studentNavGroups: NavGroup[] = [
   {
     label: 'Manage',
     items: [
-      { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/student/attendance', label: 'Attendance Check-in', icon: CheckSquare },
-      { href: '/student/calendar', label: 'Calendar', icon: CalendarDays },
+      { href: '/student/dashboard', label: 'Dashboard', iconName: 'LayoutDashboard' },
+      { href: '/student/attendance', label: 'Attendance Check-in', iconName: 'CheckSquare' },
+      { href: '/student/calendar', label: 'Calendar', iconName: 'CalendarDays' },
     ],
   },
   {
     label: 'Learning',
     items: [
-      { href: '/student/progress', label: 'Progress & Topics', icon: TrendingUp },
+      { href: '/student/progress', label: 'Progress & Topics', iconName: 'TrendingUp' },
     ],
   },
   {
     label: 'Insights',
     items: [
-      { href: '/student/feed', label: 'Central Feed', icon: Rss },
-      { href: '/student/profile', label: 'My Profile', icon: User },
+      { href: '/student/feed', label: 'Central Feed', iconName: 'Rss' },
+      { href: '/student/profile', label: 'My Profile', iconName: 'User' },
     ],
   },
 ]

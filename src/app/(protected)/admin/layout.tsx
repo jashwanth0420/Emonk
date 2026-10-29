@@ -1,39 +1,28 @@
 import { SidebarNav, NavGroup } from '@/components/layout/SidebarNav'
-import {
-  LayoutDashboard,
-  Users,
-  UserSquare,
-  Calendar,
-  BookOpen,
-  HelpCircle,
-  Brain,
-  BarChart3,
-  MessageSquare
-} from 'lucide-react'
 
 const adminNavGroups: NavGroup[] = [
   {
     label: 'Manage',
     items: [
-      { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/admin/students', label: 'Students', icon: Users },
-      { href: '/admin/tutors', label: 'Tutors', icon: UserSquare },
-      { href: '/admin/schedules', label: 'Schedules', icon: Calendar },
+      { href: '/admin/dashboard', label: 'Dashboard', iconName: 'LayoutDashboard' },
+      { href: '/admin/students', label: 'Students', iconName: 'Users' },
+      { href: '/admin/tutors', label: 'Tutors', iconName: 'UserSquare' },
+      { href: '/admin/schedules', label: 'Schedules', iconName: 'Calendar' },
     ],
   },
   {
     label: 'Learning',
     items: [
-      { href: '/admin/topics', label: 'Topics', icon: BookOpen },
-      { href: '/admin/questions', label: 'Question Bank', icon: HelpCircle },
-      { href: '/admin/ai', label: 'AI Generator', icon: Brain },
+      { href: '/admin/topics', label: 'Topics', iconName: 'BookOpen' },
+      { href: '/admin/questions', label: 'Question Bank', iconName: 'HelpCircle' },
+      { href: '/admin/ai', label: 'AI Generator', iconName: 'Brain' },
     ],
   },
   {
     label: 'Insights',
     items: [
-      { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-      { href: '/admin/posts', label: 'Posts & Feed', icon: MessageSquare },
+      { href: '/admin/analytics', label: 'Analytics', iconName: 'BarChart3' },
+      { href: '/admin/posts', label: 'Posts & Feed', iconName: 'MessageSquare' },
     ],
   },
 ]

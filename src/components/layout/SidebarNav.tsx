@@ -2,12 +2,45 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LucideIcon } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Users,
+  UserSquare,
+  Calendar,
+  BookOpen,
+  HelpCircle,
+  Brain,
+  BarChart3,
+  MessageSquare,
+  CheckSquare,
+  CalendarDays,
+  TrendingUp,
+  Rss,
+  User,
+  LucideIcon
+} from 'lucide-react'
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  LayoutDashboard,
+  Users,
+  UserSquare,
+  Calendar,
+  BookOpen,
+  HelpCircle,
+  Brain,
+  BarChart3,
+  MessageSquare,
+  CheckSquare,
+  CalendarDays,
+  TrendingUp,
+  Rss,
+  User
+}
 
 export interface NavItem {
   href: string
   label: string
-  icon: LucideIcon
+  iconName: string
 }
 
 export interface NavGroup {
@@ -32,7 +65,7 @@ export function SidebarNav({ groups }: SidebarNavProps) {
             </p>
             <div className="space-y-1">
               {group.items.map((item) => {
-                const Icon = item.icon
+                const Icon = ICON_MAP[item.iconName] || LayoutDashboard
                 const isActive = pathname === item.href || (item.href !== '/admin/dashboard' && item.href !== '/student/dashboard' && item.href !== '/tutor/dashboard' && pathname.startsWith(item.href))
 
                 return (
