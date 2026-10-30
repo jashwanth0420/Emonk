@@ -91,15 +91,15 @@ export default async function StudentsPage({
             <input type="hidden" name="role" value="student" />
             <div className="space-y-1.5">
               <Label htmlFor="fullName" className="text-xs font-semibold text-[#111315]">Full Name</Label>
-              <Input id="fullName" name="fullName" placeholder="e.g. Alex Johnson" className="rounded-xl border-black/[0.08]" required />
+              <Input id="fullName" name="fullName" defaultValue="Alex Johnson" placeholder="e.g. Alex Johnson" className="rounded-xl border-black/[0.08]" required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-xs font-semibold text-[#111315]">Email Address</Label>
-              <Input id="email" name="email" type="email" placeholder="student@emonk.edu" className="rounded-xl border-black/[0.08]" required />
+              <Input id="email" name="email" type="email" defaultValue="student@emonk.edu" placeholder="student@emonk.edu" className="rounded-xl border-black/[0.08]" required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-xs font-semibold text-[#111315]">Initial Password</Label>
-              <Input id="password" name="password" type="password" placeholder="At least 6 characters" className="rounded-xl border-black/[0.08]" required />
+              <Input id="password" name="password" type="password" defaultValue="password123" placeholder="At least 6 characters" className="rounded-xl border-black/[0.08]" required />
             </div>
             <Button type="submit" className="w-full rounded-full bg-[#111215] hover:bg-black text-white font-semibold">
               Create Student Account

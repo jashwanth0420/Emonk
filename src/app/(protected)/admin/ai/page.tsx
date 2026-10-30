@@ -57,6 +57,7 @@ export default async function AdminAIGenerationPage({
                 id="topic_id"
                 name="topic_id"
                 required
+                defaultValue={topics?.[0]?.id || ''}
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
               >
                 <option value="">Select a topic...</option>
@@ -105,6 +106,7 @@ export default async function AdminAIGenerationPage({
               <Textarea
                 id="custom_prompt"
                 name="custom_prompt"
+                defaultValue="Focus on practical code snippets, edge cases, and memory/time complexity trade-offs."
                 placeholder="e.g. Focus on memory leaks, closures, or time complexity of array shift/unshift vs push/pop with practical code snippets..."
                 rows={3}
                 className="bg-transparent"

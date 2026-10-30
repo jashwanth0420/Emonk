@@ -69,6 +69,7 @@ export default async function AdminQuestionsPage({
                 id="topic_id"
                 name="topic_id"
                 required
+                defaultValue={topics?.[0]?.id || ''}
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
               >
                 <option value="">Select Curriculum Topic...</option>
@@ -116,6 +117,7 @@ export default async function AdminQuestionsPage({
                 id="question_text"
                 name="question_text"
                 required
+                defaultValue="Explain the time complexity of QuickSort best vs worst case with pivot selection analysis."
                 placeholder="Explain the time complexity of QuickSort best vs worst case..."
                 className="min-h-[90px]"
               />
@@ -126,6 +128,7 @@ export default async function AdminQuestionsPage({
               <Input
                 id="expected_concepts"
                 name="expected_concepts"
+                defaultValue="O(N log N), O(N^2), pivot selection, balanced partition"
                 placeholder="O(N log N), O(N^2), pivot selection"
               />
               <p className="text-[11px] text-muted-foreground">Comma-separated key phrases the AI/Tutor will check.</p>
