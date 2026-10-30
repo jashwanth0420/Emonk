@@ -58,15 +58,15 @@ export default async function TutorsPage({
             <input type="hidden" name="role" value="tutor" />
             <div className="space-y-1.5">
               <Label htmlFor="fullName">Full Name</Label>
-              <Input id="fullName" name="fullName" defaultValue="Dr. Jane Smith" placeholder="e.g. Dr. Jane Smith" required />
+              <Input id="fullName" name="fullName" placeholder="Enter full name" required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" name="email" type="email" defaultValue="tutor@emonk.edu" placeholder="tutor@emonk.edu" required />
+              <Input id="email" name="email" type="email" placeholder="Enter email address" required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password">Initial Password</Label>
-              <Input id="password" name="password" type="password" defaultValue="password123" placeholder="At least 6 characters" required />
+              <Input id="password" name="password" type="password" placeholder="At least 6 characters" required />
             </div>
             <Button type="submit" className="w-full">Create Tutor Account</Button>
           </form>

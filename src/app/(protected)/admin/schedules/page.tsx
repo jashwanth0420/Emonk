@@ -49,7 +49,7 @@ export default async function SchedulesPage({
           <form action={createScheduleAction} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="title">Session Title</Label>
-              <Input id="title" name="title" defaultValue="Daily DSA & Problem Solving" required placeholder="e.g. Daily DSA & Problem Solving" />
+              <Input id="title" name="title" required placeholder="Enter session title" />
             </div>
             
             <div className="space-y-1.5">
@@ -58,10 +58,10 @@ export default async function SchedulesPage({
                 id="topic_id"
                 name="topic_id"
                 required
-                defaultValue={topics?.[0]?.id || ''}
+                defaultValue=""
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
               >
-                <option value="">Select a curriculum topic...</option>
+                <option value="" disabled>Select a curriculum topic...</option>
                 {topics?.map(t => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}

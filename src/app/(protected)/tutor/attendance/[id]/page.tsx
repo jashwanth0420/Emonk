@@ -98,7 +98,6 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
                   <Textarea 
                     id="feedback" 
                     name="feedback" 
-                    defaultValue="Well-structured conceptual explanation with clear algorithmic analysis and correct complexity boundaries."
                     placeholder="Great job explaining the time complexity..." 
                     className="min-h-[100px]"
                   />

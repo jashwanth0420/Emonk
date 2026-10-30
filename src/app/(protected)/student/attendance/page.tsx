@@ -66,13 +66,12 @@ export default async function AttendanceFlowPage() {
               <input type="hidden" name="schedule_id" value={attendance.schedule_id} />
               
               <div className="space-y-2.5">
-                {topics?.map((topic, i) => (
+                {topics?.map((topic) => (
                   <label key={topic.id} className="flex items-center space-x-3 border p-3 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer">
                     <input 
                       type="checkbox" 
                       name="topics" 
                       value={topic.id}
-                      defaultChecked={i === 0}
                       className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-orange-500" 
                     />
                     <div className="grid gap-0.5 text-xs">
@@ -132,7 +131,6 @@ export default async function AttendanceFlowPage() {
                 <Textarea 
                   id="answer" 
                   name="answer" 
-                  defaultValue="I solved the problem using dynamic programming with memoization. The recurrence relation stores overlapping subproblems to prevent recalculation, achieving O(N) time complexity and O(N) auxiliary space."
                   placeholder="Explain your thought process, data structures used, time & space complexity..." 
                   className="min-h-[180px] text-sm"
                   required 

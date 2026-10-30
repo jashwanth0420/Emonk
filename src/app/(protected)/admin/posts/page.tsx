@@ -20,7 +20,7 @@ export default async function AdminPostsPage() {
           <form action={createPostAction} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" defaultValue="Upcoming DSA Review & Attendance Check-in" required />
+              <Input id="title" name="title" placeholder="Enter post title" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="post_type">Type</Label>
@@ -33,7 +33,7 @@ export default async function AdminPostsPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="content">Content</Label>
-              <Textarea id="content" name="content" defaultValue="Please ensure all assigned topic exercises are completed prior to the session. Tutors will be reviewing submissions live." required className="min-h-[150px]" />
+              <Textarea id="content" name="content" placeholder="Write announcement content here..." required className="min-h-[150px]" />
             </div>
             <Button type="submit" className="w-full">Publish to Feed</Button>
           </form>

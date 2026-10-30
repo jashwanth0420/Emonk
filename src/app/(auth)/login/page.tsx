@@ -23,11 +23,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             )}
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" defaultValue="admin@emonk.edu" placeholder="email@emonk.edu" required />
+              <Input id="email" name="email" type="email" placeholder="name@emonk.edu" required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" defaultValue="Admin@123" required />
+              <Input id="password" name="password" type="password" placeholder="Enter password" required />
             </div>
             <Button type="submit" className="w-full mt-2">
               Login

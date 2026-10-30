@@ -44,15 +44,15 @@ export default async function TopicsPage({
           <form action={createTopicAction} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="name">Topic Name</Label>
-              <Input id="name" name="name" defaultValue="Dynamic Programming" required placeholder="e.g. Dynamic Programming" />
+              <Input id="name" name="name" required placeholder="Enter topic name" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="category">Category</Label>
-              <Input id="category" name="category" defaultValue="Data Structures & Algorithms" required placeholder="e.g. Data Structures & Algorithms" />
+              <Input id="category" name="category" required placeholder="Enter category" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="description">Description (Optional)</Label>
-              <Input id="description" name="description" defaultValue="Core memoization, tabulation, and optimal substructure concepts." placeholder="Brief scope of topic..." />
+              <Input id="description" name="description" placeholder="Brief scope of topic..." />
             </div>
             <Button type="submit" className="w-full">Create Topic</Button>
           </form>
