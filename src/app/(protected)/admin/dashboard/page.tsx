@@ -3,17 +3,18 @@ import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
 import { PillTabsBar } from '@/components/layout/PillTabsBar'
 import { BentoDashboard } from '@/components/dashboard/BentoDashboard'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Users } from 'lucide-react'
 
 const adminPillTabs = [
-  { href: '/admin/dashboard', label: 'Organization' },
-  { href: '/admin/students', label: 'Teams' },
-  { href: '/admin/tutors', label: 'Users' },
-  { href: '/admin/schedules', label: 'Subscription' },
-  { href: '/admin/topics', label: 'Payment' },
-  { href: '/admin/questions', label: 'Installed Apps' },
-  { href: '/admin/ai', label: 'Variables' },
-  { href: '/admin/analytics', label: 'Scenario Properties' },
+  { href: '/admin/dashboard', label: 'Overview' },
+  { href: '/admin/students', label: 'Students' },
+  { href: '/admin/tutors', label: 'Tutors' },
+  { href: '/admin/schedules', label: 'Schedules' },
+  { href: '/admin/topics', label: 'Topics' },
+  { href: '/admin/questions', label: 'Question Bank' },
+  { href: '/admin/ai', label: 'AI Generator' },
+  { href: '/admin/analytics', label: 'Analytics' },
+  { href: '/admin/posts', label: 'Community Feed' },
 ]
 
 export default async function AdminDashboard() {
@@ -58,55 +59,56 @@ export default async function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Top Playful Headline with Inline Badges matching Reference UI */}
+    <div className="space-y-5 sm:space-y-6 w-full max-w-full overflow-x-hidden">
+      {/* Top Playful Headline with Inline Badges matching Emonk Attendance */}
       <DesignPageHeader
         firstLinePrefix="Managing"
-        firstLineSuffix="Your Team"
+        firstLinePillIcon={Users}
+        firstLineSuffix="Student Attendance"
         secondLinePrefix="and"
-        secondLineSuffix="Workflows"
-        actionLabel="+ Create a New Scenario"
+        secondLineSuffix="Progress"
+        actionLabel="+ New Schedule"
         actionHref="/admin/schedules"
         settingsHref="/admin/analytics"
       />
 
-      {/* Horizontal Pill Tabs Bar matching Reference UI */}
+      {/* Horizontal Pill Tabs Bar with Real Emonk Modules */}
       <PillTabsBar tabs={adminPillTabs} className="mb-2" />
 
-      {/* Main Bento Grid matching Reference UI */}
+      {/* Main Bento Grid formatted to Emonk Data */}
       <BentoDashboard stats={stats} />
 
       {/* Live Operational Feeds Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 pt-2 sm:pt-4 w-full">
         {/* Recent Attendance Submissions */}
-        <div className="bg-white rounded-[28px] p-6 sm:p-7 border border-black/[0.06] shadow-sm">
-          <div className="flex items-center justify-between mb-5">
+        <div className="bg-white rounded-[28px] p-5 sm:p-7 border border-black/[0.06] shadow-sm">
+          <div className="flex items-center justify-between mb-4 sm:mb-5">
             <div>
-              <h3 className="font-bold text-base text-[#111315] tracking-tight">Recent Attendance Records</h3>
+              <h3 className="font-bold text-sm sm:text-base text-[#111315] tracking-tight">Recent Attendance Records</h3>
               <p className="text-xs text-[#737780] mt-0.5">Latest student check-in submissions</p>
             </div>
             <Link
               href="/admin/analytics"
-              className="text-xs font-semibold text-[#111315] hover:opacity-75 flex items-center gap-1 transition-opacity"
+              className="text-xs font-semibold text-[#111315] hover:opacity-75 flex items-center gap-1 transition-opacity shrink-0"
             >
               Analytics <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5 sm:space-y-3">
             {recentAttendance?.map((rec: any) => (
               <div
                 key={rec.id}
-                className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F9FAFB] border border-black/[0.04] text-xs transition-colors hover:bg-gray-100/70"
+                className="flex items-center justify-between p-3 sm:p-3.5 rounded-2xl bg-[#F9FAFB] border border-black/[0.04] text-xs transition-colors hover:bg-gray-100/70"
               >
-                <div>
-                  <p className="font-bold text-sm text-[#111315]">{rec.profiles?.full_name || 'Student'}</p>
-                  <p className="text-[#737780] text-[11px] mt-0.5">
+                <div className="min-w-0 pr-2">
+                  <p className="font-bold text-xs sm:text-sm text-[#111315] truncate">{rec.profiles?.full_name || 'Student'}</p>
+                  <p className="text-[#737780] text-[11px] mt-0.5 truncate">
                     {rec.schedules?.title} • {new Date(rec.attendance_date).toLocaleDateString()}
                   </p>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${
                     rec.status === 'approved'
                       ? 'bg-[#EBFD78] text-[#111315]'
                       : rec.status === 'pending_review'
@@ -127,40 +129,40 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Active & Upcoming Sessions */}
-        <div className="bg-white rounded-[28px] p-6 sm:p-7 border border-black/[0.06] shadow-sm">
-          <div className="flex items-center justify-between mb-5">
+        <div className="bg-white rounded-[28px] p-5 sm:p-7 border border-black/[0.06] shadow-sm">
+          <div className="flex items-center justify-between mb-4 sm:mb-5">
             <div>
-              <h3 className="font-bold text-base text-[#111315] tracking-tight">Active & Upcoming Sessions</h3>
+              <h3 className="font-bold text-sm sm:text-base text-[#111315] tracking-tight">Active & Upcoming Sessions</h3>
               <p className="text-xs text-[#737780] mt-0.5">Scheduled learning blocks in the system</p>
             </div>
             <Link
               href="/admin/schedules"
-              className="text-xs font-semibold text-[#111315] hover:opacity-75 flex items-center gap-1 transition-opacity"
+              className="text-xs font-semibold text-[#111315] hover:opacity-75 flex items-center gap-1 transition-opacity shrink-0"
             >
               All Schedules <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5 sm:space-y-3">
             {upcomingSchedules?.map((s) => (
               <div
                 key={s.id}
-                className="p-3.5 rounded-2xl bg-[#F9FAFB] border border-black/[0.04] text-xs transition-colors hover:bg-gray-100/70"
+                className="p-3 sm:p-3.5 rounded-2xl bg-[#F9FAFB] border border-black/[0.04] text-xs transition-colors hover:bg-gray-100/70"
               >
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-bold text-sm text-[#111315]">{s.title}</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-white border border-black/[0.08] text-[10px] font-bold text-[#111315]">
+                <div className="flex justify-between items-center mb-1 gap-2">
+                  <span className="font-bold text-xs sm:text-sm text-[#111315] truncate">{s.title}</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-white border border-black/[0.08] text-[10px] font-bold text-[#111315] shrink-0">
                     {s.topics?.name || 'General'}
                   </span>
                 </div>
-                <p className="text-[#737780] text-[11px]">
+                <p className="text-[#737780] text-[11px] truncate">
                   Date: {new Date(s.date).toLocaleDateString()} | Time: {s.start_time.slice(0, 5)} - {s.end_time.slice(0, 5)}
                 </p>
               </div>
             ))}
             {(!upcomingSchedules || upcomingSchedules.length === 0) && (
               <div className="text-center py-8 text-[#737780] text-xs">
-                No upcoming schedules. Click &ldquo;+ Create a New Scenario&rdquo; above to create one.
+                No upcoming schedules. Click &ldquo;+ New Schedule&rdquo; above to create one.
               </div>
             )}
           </div>

@@ -54,7 +54,7 @@ export default async function TutorDashboard() {
   const { count: approvedCount } = await approvedQuery
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6 w-full max-w-full overflow-x-hidden">
       {/* Top Playful Headline with Inline Badges */}
       <DesignPageHeader
         firstLinePrefix="Mentoring"

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 
@@ -14,10 +14,16 @@ export const metadata: Metadata = {
   description: 'Next-Gen Student Attendance & Automated Progress Intelligence',
 }
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${plusJakarta.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#F2F4F7] text-[#111315] font-sans selection:bg-[#EBFD78] selection:text-[#111315]">
+      <body className="min-h-full flex flex-col bg-[#F2F4F7] text-[#111315] font-sans selection:bg-[#EBFD78] selection:text-[#111315] overflow-x-hidden">
         {children}
       </body>
     </html>

@@ -18,7 +18,6 @@ import {
   Rss,
   User,
   LogOut,
-  Sparkles,
   Rocket,
   LucideIcon
 } from 'lucide-react'
@@ -39,7 +38,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
   TrendingUp,
   Rss,
   User,
-  Sparkles,
   Rocket
 }
 
@@ -59,8 +57,8 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
 
   return (
     <>
-      {/* Desktop Left Slim Dark Dock */}
-      <aside className="hidden md:flex flex-col w-[72px] shrink-0 h-screen sticky top-0 bg-[#111215] border-r border-[#1E2024] py-5 px-2.5 z-40 select-none">
+      {/* Desktop Left Slim Dark Dock (1024px and wider) */}
+      <aside className="hidden lg:flex flex-col w-[72px] shrink-0 h-screen sticky top-0 bg-[#111215] border-r border-[#1E2024] py-5 px-2.5 z-40 select-none">
         {/* Top Logo Mark with Sparkle */}
         <Link
           href={items[0]?.href || '/'}
@@ -92,6 +90,7 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
                       ? 'bg-[#24262B] text-white shadow-sm'
                       : 'text-[#7A7E86] hover:text-white hover:bg-white/5'
                   }`}
+                  aria-label={item.label}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
                 </Link>
@@ -117,7 +116,7 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
             <BookOpen className="w-4 h-4" />
             <div className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center z-50">
               <div className="bg-[#18191D] text-white text-[11px] font-medium px-2.5 py-1 rounded-md shadow-xl border border-white/10 whitespace-nowrap">
-                Resources
+                Community
               </div>
             </div>
           </Link>
@@ -125,12 +124,12 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
           <Link
             href="/admin/ai"
             className="w-11 h-11 rounded-[16px] flex items-center justify-center text-[#7A7E86] hover:text-[#EBFD78] hover:bg-white/5 transition-all group relative"
-            title="AI Innovation"
+            title="AI Generator"
           >
-            <Rocket className="w-4 h-4" />
+            <Brain className="w-4 h-4" />
             <div className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center z-50">
               <div className="bg-[#18191D] text-white text-[11px] font-medium px-2.5 py-1 rounded-md shadow-xl border border-white/10 whitespace-nowrap">
-                AI Engine
+                AI Assessment
               </div>
             </div>
           </Link>
@@ -153,8 +152,8 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
         </div>
       </aside>
 
-      {/* Mobile Bottom Navigation Bar (< md) */}
-      <div className="fixed bottom-0 inset-x-0 h-16 bg-[#111215]/95 backdrop-blur-md border-t border-[#1E2024] flex items-center justify-around px-2 z-50 md:hidden">
+      {/* Mobile / Tablet Bottom Navigation Bar (< 1024px) */}
+      <nav className="fixed bottom-0 inset-x-0 h-16 bg-[#111215]/95 backdrop-blur-md border-t border-[#1E2024] flex items-center justify-around px-2 z-50 lg:hidden">
         {items.slice(0, 5).map((item) => {
           const Icon = ICON_MAP[item.iconName] || LayoutDashboard
           const isExactActive = pathname === item.href
@@ -168,28 +167,28 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all ${
-                isActive ? 'text-[#EBFD78] bg-[#24262B]' : 'text-[#7A7E86]'
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all ${
+                isActive ? 'text-[#EBFD78] bg-[#24262B]' : 'text-[#7A7E86] hover:text-white'
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[10px] mt-0.5 font-medium truncate max-w-[56px]">{item.label}</span>
+              <span className="text-[10px] mt-0.5 font-medium truncate max-w-[60px]">{item.label}</span>
             </Link>
           )
         })}
 
-        {/* Mobile Logout / Menu */}
+        {/* Mobile Logout Button */}
         <form action={logoutAction} className="flex flex-col items-center justify-center">
           <button
             type="submit"
-            className="flex flex-col items-center justify-center p-2 rounded-xl text-[#7A7E86] hover:text-red-400"
+            className="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[#7A7E86] hover:text-red-400"
             title="Logout"
           >
             <LogOut className="w-5 h-5" />
             <span className="text-[10px] mt-0.5 font-medium">Exit</span>
           </button>
         </form>
-      </div>
+      </nav>
     </>
   )
 }

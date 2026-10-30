@@ -35,7 +35,7 @@ export default async function ProtectedLayout({
       { href: '/admin/students', label: 'Students', iconName: 'Users' },
       { href: '/admin/tutors', label: 'Tutors', iconName: 'UserSquare' },
       { href: '/admin/schedules', label: 'Schedules', iconName: 'Calendar' },
-      { href: '/admin/questions', label: 'Question Bank', iconName: 'HelpCircle' },
+      { href: '/admin/questions', label: 'Questions', iconName: 'HelpCircle' },
       { href: '/admin/analytics', label: 'Analytics', iconName: 'BarChart3' },
     ]
   } else if (isTutor) {
@@ -56,14 +56,14 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F2F4F7] text-[#111215] antialiased">
-      {/* Slim Dark Dock on Desktop + Bottom Navigation Bar on Mobile */}
+    <div className="flex min-h-screen bg-[#F2F4F7] text-[#111215] antialiased w-full max-w-full overflow-x-hidden">
+      {/* Slim Dark Dock (lg:flex) & Bottom Bar (lg:hidden) */}
       <AppSidebarRail items={railItems} userRole={role} />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile Header Bar (< md) */}
-        <header className="md:hidden flex h-14 items-center justify-between border-b border-black/[0.06] px-4 bg-white sticky top-0 z-30 shrink-0">
+      {/* Main Content Viewport */}
+      <div className="flex-1 flex flex-col min-w-0 w-full max-w-full overflow-x-hidden">
+        {/* Mobile / Tablet Header Bar (< 1024px) */}
+        <header className="lg:hidden flex h-14 items-center justify-between border-b border-black/[0.06] px-4 bg-white sticky top-0 z-30 shrink-0 w-full">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-[10px] bg-[#111215] flex items-center justify-center text-white text-xs font-bold">
               ✦
@@ -71,7 +71,7 @@ export default async function ProtectedLayout({
             <span className="font-bold text-base tracking-tight text-[#111215]">
               Emonk
             </span>
-            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[#EBFD78] text-[#111215]">
+            <span className="text-[10px] uppercase font-bold px-2.5 py-0.5 rounded-full bg-[#EBFD78] text-[#111215]">
               {role.replace('_', ' ')}
             </span>
           </div>
@@ -85,8 +85,8 @@ export default async function ProtectedLayout({
           </form>
         </header>
 
-        {/* Scrollable Viewport */}
-        <main className="flex-1 pb-20 md:pb-8">
+        {/* Scrollable Viewport with Bottom Padding for Mobile Nav */}
+        <main className="flex-1 w-full max-w-full pb-20 lg:pb-8">
           {children}
         </main>
       </div>

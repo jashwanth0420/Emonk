@@ -17,8 +17,8 @@ export function PillTabsBar({ tabs, className = '' }: PillTabsBarProps) {
   const pathname = usePathname()
 
   return (
-    <div className={`w-full overflow-x-auto no-scrollbar py-1 ${className}`}>
-      <div className="flex items-center gap-2 min-w-max">
+    <div className={`w-full max-w-full overflow-x-auto no-scrollbar py-1 touch-pan-x ${className}`}>
+      <div className="flex items-center gap-2 min-w-max px-0.5">
         {tabs.map((tab) => {
           const isExactActive = pathname === tab.href
           const isSubActive = 
@@ -32,9 +32,9 @@ export function PillTabsBar({ tabs, className = '' }: PillTabsBarProps) {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`rounded-full px-5 py-2 text-xs font-semibold tracking-tight transition-all shadow-sm ${
+              className={`rounded-full px-4 py-2 sm:px-5 sm:py-2 text-xs font-semibold tracking-tight transition-all shadow-xs shrink-0 select-none ${
                 isActive
-                  ? 'bg-[#111215] text-white shadow'
+                  ? 'bg-[#111215] text-white shadow-sm'
                   : 'bg-white text-[#2B2D31] hover:bg-[#F8F9FA] border border-black/[0.06] hover:border-black/15'
               }`}
             >

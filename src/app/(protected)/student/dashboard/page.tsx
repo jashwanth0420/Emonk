@@ -68,7 +68,7 @@ export default async function StudentDashboard() {
   const pendingCount = history?.filter(h => h.status === 'pending_review').length || 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6 w-full max-w-full overflow-x-hidden">
       {/* Top Playful Headline with Inline Badges */}
       <DesignPageHeader
         firstLinePrefix={profile?.full_name ? `Welcome, ${profile.full_name.split(' ')[0]}` : 'Learning'}
