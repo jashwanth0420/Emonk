@@ -44,6 +44,7 @@ export async function createUserAction(formData: FormData) {
   }
 
   revalidatePath(`/admin/${role}s`)
+  revalidatePath('/admin/dashboard')
   redirect(`/admin/${role}s?success=${encodeURIComponent(`${role.toUpperCase()} account created successfully!`)}`)
 }
 
@@ -117,6 +118,7 @@ export async function createTopicAction(formData: FormData) {
 
   revalidatePath('/admin/topics')
   revalidatePath('/admin/schedules')
+  revalidatePath('/admin/dashboard')
   redirect(`/admin/topics?success=${encodeURIComponent('Topic created successfully!')}`)
 }
 
@@ -150,6 +152,7 @@ export async function createScheduleAction(formData: FormData) {
   }
 
   revalidatePath('/admin/schedules')
+  revalidatePath('/admin/dashboard')
   revalidatePath('/student/dashboard')
   redirect(`/admin/schedules?success=${encodeURIComponent('Schedule created successfully!')}`)
 }

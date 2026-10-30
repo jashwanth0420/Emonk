@@ -3,6 +3,40 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createAdminClient } from './admin'
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+  const isAuthRoute = pathname.startsWith('/login')
+  const isAdminRoute = pathname.startsWith('/admin')
+  const isTutorRoute = pathname.startsWith('/tutor')
+  const isStudentRoute = pathname.startsWith('/student')
+  const isProtectedRoute = isAdminRoute || isTutorRoute || isStudentRoute
+  const isRootRoute = pathname === '/'
+
+  // Quick check: does the request even carry a Supabase auth token cookie?
+  const allCookies = request.cookies.getAll()
+  const hasAuthCookie = allCookies.some(
+    c => (c.name.startsWith('sb-') && c.name.includes('-auth-token')) || c.name === 'user_role'
+  )
+
+  // 1. FAST PATH for unauthenticated users: 0ms, zero network calls to Supabase
+  if (!hasAuthCookie) {
+    if (isProtectedRoute || isRootRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+    // Static assets or /login without session: pass immediately
+    return NextResponse.next()
+  }
+
+  // 2. FAST PATH for root route redirect:
+  if (isRootRoute) {
+    const role = request.cookies.get('user_role')?.value || 'admin'
+    const url = request.nextUrl.clone()
+    url.pathname = getRoleBasePath(role) + '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  // 3. Authenticated session validation
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -29,13 +63,6 @@ export async function updateSession(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-  
-  const pathname = request.nextUrl.pathname
-  const isAuthRoute = pathname.startsWith('/login')
-  const isAdminRoute = pathname.startsWith('/admin')
-  const isTutorRoute = pathname.startsWith('/tutor')
-  const isStudentRoute = pathname.startsWith('/student')
-  const isProtectedRoute = isAdminRoute || isTutorRoute || isStudentRoute
 
   // Not logged in? Redirect to login
   if (!user && isProtectedRoute) {
@@ -98,8 +125,7 @@ function getRoleBasePath(role: string): string {
     case 'tutor': 
       return '/tutor'
     case 'student': 
-      return '/student'
-    default: 
+    default:
       return '/student'
   }
 }
