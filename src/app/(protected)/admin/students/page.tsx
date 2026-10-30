@@ -1,10 +1,23 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
+import { PillTabsBar } from '@/components/layout/PillTabsBar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
+import { Users } from 'lucide-react'
 import { createUserAction, assignStudentToTutorAction, unassignStudentAction } from '../actions'
+
+const adminPillTabs = [
+  { href: '/admin/dashboard', label: 'Organization' },
+  { href: '/admin/students', label: 'Teams' },
+  { href: '/admin/tutors', label: 'Users' },
+  { href: '/admin/schedules', label: 'Subscription' },
+  { href: '/admin/topics', label: 'Payment' },
+  { href: '/admin/questions', label: 'Installed Apps' },
+  { href: '/admin/ai', label: 'Variables' },
+  { href: '/admin/analytics', label: 'Scenario Properties' },
+]
 
 export default async function StudentsPage({
   searchParams
@@ -44,103 +57,116 @@ export default async function StudentsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="page-title text-foreground">Students Directory</h1>
-      </div>
+      <DesignPageHeader
+        firstLinePrefix="Managing"
+        firstLinePillIcon={Users}
+        firstLineSuffix="Your Students"
+        secondLinePrefix="and"
+        secondLineSuffix="Enrolments"
+        actionLabel="+ Create New Student"
+        actionHref="#create"
+        settingsHref="/admin/analytics"
+      />
+
+      <PillTabsBar tabs={adminPillTabs} className="mb-2" />
 
       {success && (
-        <div className="p-4 rounded-md bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-300 text-sm">
+        <div className="p-4 rounded-2xl bg-green-500/10 border border-green-500/20 text-green-800 text-sm font-medium">
           {success}
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 text-sm">
+        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-800 text-sm font-medium">
           {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Create Student Form */}
-        <div className="lg:col-span-1 border rounded-lg p-5 bg-card shadow-sm h-fit space-y-4">
-          <h2 className="text-lg font-semibold">Create New Student</h2>
-          <p className="text-xs text-muted-foreground">Creates auth login credentials and a student profile.</p>
+        <div id="create" className="lg:col-span-1 rounded-[28px] border border-black/[0.06] p-6 bg-white shadow-sm h-fit space-y-4">
+          <h2 className="text-base font-bold text-[#111315]">Create New Student</h2>
+          <p className="text-xs text-[#737780]">Creates auth login credentials and a student profile.</p>
           <form action={createUserAction} className="space-y-4">
             <input type="hidden" name="role" value="student" />
             <div className="space-y-1.5">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input id="fullName" name="fullName" placeholder="e.g. Alex Johnson" required />
+              <Label htmlFor="fullName" className="text-xs font-semibold text-[#111315]">Full Name</Label>
+              <Input id="fullName" name="fullName" placeholder="e.g. Alex Johnson" className="rounded-xl border-black/[0.08]" required />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email Address</Label>
-              <Input id="email" name="email" type="email" placeholder="student@emonk.edu" required />
+              <Label htmlFor="email" className="text-xs font-semibold text-[#111315]">Email Address</Label>
+              <Input id="email" name="email" type="email" placeholder="student@emonk.edu" className="rounded-xl border-black/[0.08]" required />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Initial Password</Label>
-              <Input id="password" name="password" type="password" placeholder="At least 6 characters" required />
+              <Label htmlFor="password" className="text-xs font-semibold text-[#111315]">Initial Password</Label>
+              <Input id="password" name="password" type="password" placeholder="At least 6 characters" className="rounded-xl border-black/[0.08]" required />
             </div>
-            <Button type="submit" className="w-full">Create Student Account</Button>
+            <Button type="submit" className="w-full rounded-full bg-[#111215] hover:bg-black text-white font-semibold">
+              Create Student Account
+            </Button>
           </form>
         </div>
 
         {/* Students Table */}
-        <div className="lg:col-span-2 border rounded-lg overflow-hidden bg-card shadow-sm">
+        <div className="lg:col-span-2 rounded-[28px] border border-black/[0.06] overflow-hidden bg-white shadow-sm p-4 sm:p-6">
+          <h3 className="font-bold text-base text-[#111315] mb-4">Active Students Directory</h3>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Student</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Assigned Tutor</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Assign Action</TableHead>
+              <TableRow className="border-b border-black/[0.06]">
+                <TableHead className="font-bold text-xs text-[#111315]">Student</TableHead>
+                <TableHead className="font-bold text-xs text-[#111315]">Email</TableHead>
+                <TableHead className="font-bold text-xs text-[#111315]">Assigned Tutor</TableHead>
+                <TableHead className="font-bold text-xs text-[#111315]">Status</TableHead>
+                <TableHead className="font-bold text-xs text-[#111315] text-right">Assign Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {students?.map((student) => {
                 const currentAssignment = assignmentMap.get(student.id)
-
                 return (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-medium">{student.full_name}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{student.email}</TableCell>
+                  <TableRow key={student.id} className="border-b border-black/[0.04]">
+                    <TableCell className="font-semibold text-xs text-[#111315]">{student.full_name}</TableCell>
+                    <TableCell className="text-xs text-[#737780]">{student.email}</TableCell>
                     <TableCell>
                       {currentAssignment ? (
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="border-blue-400 text-blue-700 bg-blue-50/50">
-                            {currentAssignment.tutorName}
-                          </Badge>
-                          <form action={unassignStudentAction} className="inline">
-                            <input type="hidden" name="assignment_id" value={currentAssignment.id} />
-                            <button type="submit" className="text-xs text-red-500 hover:underline">
-                              ×
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <span className="font-semibold text-[#111315]">{currentAssignment.tutorName}</span>
+                          <form action={unassignStudentAction.bind(null, currentAssignment.id)}>
+                            <button
+                              type="submit"
+                              className="text-[10px] text-red-500 hover:text-red-700 font-bold ml-1"
+                              title="Unassign Tutor"
+                            >
+                              ✕
                             </button>
                           </form>
                         </div>
                       ) : (
-                        <span className="text-xs text-muted-foreground italic">Unassigned</span>
+                        <span className="text-xs text-[#737780] italic">Unassigned</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={student.status === 'active' ? 'default' : 'secondary'} className="capitalize text-xs">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${student.status === 'active' ? 'bg-[#EBFD78] text-[#111315]' : 'bg-gray-100 text-gray-700'}`}>
                         {student.status}
-                      </Badge>
+                      </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <form action={assignStudentToTutorAction} className="flex items-center justify-end gap-1.5">
-                        <input type="hidden" name="student_id" value={student.id} />
+                      <form action={assignStudentToTutorAction} className="inline-flex items-center gap-2">
+                        <input type="hidden" name="studentId" value={student.id} />
                         <select
-                          name="tutor_id"
+                          name="tutorId"
+                          className="text-xs border border-black/[0.08] rounded-xl px-2.5 py-1 bg-white text-[#111315]"
                           required
-                          className="h-8 rounded-md border border-input bg-transparent px-2 text-xs shadow-sm"
+                          defaultValue=""
                         >
-                          <option value="">Choose tutor...</option>
+                          <option value="" disabled>Select tutor...</option>
                           {tutors?.map((t) => (
                             <option key={t.id} value={t.id}>
                               {t.full_name}
                             </option>
                           ))}
                         </select>
-                        <Button size="sm" type="submit" variant="outline" className="h-8 text-xs">
+                        <Button type="submit" size="sm" variant="outline" className="rounded-full text-xs font-semibold h-7 px-3">
                           Assign
                         </Button>
                       </form>
@@ -150,8 +176,8 @@ export default async function StudentsPage({
               })}
               {(!students || students.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No student accounts found yet. Create the first student using the form on the left!
+                  <TableCell colSpan={5} className="text-center py-8 text-xs text-[#737780]">
+                    No students found. Create one using the form on the left.
                   </TableCell>
                 </TableRow>
               )}

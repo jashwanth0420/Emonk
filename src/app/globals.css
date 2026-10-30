@@ -15,9 +15,14 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
+  --color-lime-card: #EBFD78;
+  --color-lime-pill: #E2F952;
+  --color-dock: #111315;
+  --color-dock-border: #202226;
+  --color-dock-active: #25272D;
   
-  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-heading: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--font-jakarta), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -38,59 +43,59 @@
 }
 
 :root {
-  /* Light Theme Design Tokens */
-  --background: #FAFAF8;
+  /* Ultra-modern clean light aesthetic from reference */
+  --background: #F2F4F7;
   --surface: #FFFFFF;
-  --border: #EDEAE4;
-  --text: #1D1D1F;
-  --foreground: #1D1D1F;
-  --muted: #6E6E73;
-  --muted-foreground: #6E6E73;
-  --accent: #F97316;
-  --accent-hover: #EA580C;
-  --accent-soft: #FFF1E6;
+  --border: #E5E7EB;
+  --text: #111315;
+  --foreground: #111315;
+  --muted: #737780;
+  --muted-foreground: #737780;
+  --accent: #111315;
+  --accent-hover: #000000;
+  --accent-soft: #F4F5F7;
+  --lime-card: #EBFD78;
 
   /* Component Semantic Mapping */
   --card: #FFFFFF;
-  --card-foreground: #1D1D1F;
+  --card-foreground: #111315;
   --popover: #FFFFFF;
-  --popover-foreground: #1D1D1F;
-  --primary: #1D1D1F;
-  --primary-foreground: #FAFAF8;
-  --secondary: #FFF1E6;
-  --secondary-foreground: #EA580C;
+  --popover-foreground: #111315;
+  --primary: #111315;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EBFD78;
+  --secondary-foreground: #111315;
   --destructive: #EF4444;
-  --input: #EDEAE4;
-  --ring: #F97316;
-  --radius: 0.625rem;
+  --input: #E5E7EB;
+  --ring: #111315;
+  --radius: 1.25rem;
 }
 
 .dark {
-  /* Dark Theme Design Tokens */
   --background: #0B0B0F;
-  --surface: #1C1C1E;
-  --border: #38383A;
+  --surface: #15171A;
+  --border: #272A30;
   --text: #F5F5F7;
   --foreground: #F5F5F7;
-  --muted: #98989D;
-  --muted-foreground: #98989D;
-  --accent: #F97316;
-  --accent-hover: #EA580C;
-  --accent-soft: #2A1C12;
+  --muted: #8E929B;
+  --muted-foreground: #8E929B;
+  --accent: #EBFD78;
+  --accent-hover: #D7EA58;
+  --accent-soft: #1C2025;
+  --lime-card: #1D2311;
 
-  /* Component Semantic Mapping */
-  --card: #1C1C1E;
+  --card: #15171A;
   --card-foreground: #F5F5F7;
-  --popover: #1C1C1E;
+  --popover: #15171A;
   --popover-foreground: #F5F5F7;
   --primary: #F5F5F7;
   --primary-foreground: #0B0B0F;
-  --secondary: #2A1C12;
-  --secondary-foreground: #F97316;
+  --secondary: #252817;
+  --secondary-foreground: #EBFD78;
   --destructive: #EF4444;
-  --border: #38383A;
-  --input: #38383A;
-  --ring: #F97316;
+  --border: #272A30;
+  --input: #272A30;
+  --ring: #EBFD78;
 }
 
 @layer base {
@@ -106,37 +111,18 @@
     background-color: var(--background);
     color: var(--text);
     min-height: 100vh;
-    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--font-jakarta), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 14px;
     line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* Typography Design Tokens */
-  .page-title {
-    font-size: 28px;
-    line-height: 1.25;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: var(--text);
+  /* Utility to hide scrollbars while keeping overflow scroll functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
-
-  .section-title {
-    font-size: 16px;
-    line-height: 1.35;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .card-label {
-    font-size: 13px;
-    line-height: 1.4;
-    color: var(--muted);
-  }
-
-  .stat-number {
-    font-size: 32px;
-    line-height: 1.15;
-    font-weight: 600;
-    color: var(--text);
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

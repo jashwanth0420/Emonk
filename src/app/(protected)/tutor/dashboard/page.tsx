@@ -1,9 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
+import { PillTabsBar } from '@/components/layout/PillTabsBar'
 import Link from 'next/link'
 import { Users, CheckSquare, ArrowRight, UserCheck } from 'lucide-react'
+
+const tutorPillTabs = [
+  { href: '/tutor/dashboard', label: 'Overview' },
+  { href: '/tutor/students', label: 'My Students' },
+  { href: '/tutor/attendance', label: 'Review Submissions' },
+]
 
 export default async function TutorDashboard() {
   const supabase = await createClient()
@@ -48,91 +54,91 @@ export default async function TutorDashboard() {
   const { count: approvedCount } = await approvedQuery
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
-      <div>
-        <h1 className="page-title text-foreground">
-          Welcome back, {profile?.full_name?.split(' ')[0] || 'Tutor'}!
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Review student concept answers and approve attendance sessions.
-        </p>
+    <div className="space-y-6">
+      {/* Top Playful Headline with Inline Badges */}
+      <DesignPageHeader
+        firstLinePrefix="Mentoring"
+        firstLinePillIcon={UserCheck}
+        firstLineSuffix="Your Students"
+        secondLinePrefix="and"
+        secondLineSuffix="Submissions"
+        actionLabel="Review Attendance"
+        actionHref="/tutor/attendance"
+        settingsHref="/tutor/dashboard"
+      />
+
+      {/* Horizontal Pill Tabs Bar */}
+      <PillTabsBar tabs={tutorPillTabs} className="mb-2" />
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="bg-white rounded-[28px] p-6 border border-black/[0.06] shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-[#737780]">Assigned Students</span>
+            <Users className="w-4 h-4 text-[#111315]" />
+          </div>
+          <div className="text-3xl font-bold text-[#111315] mt-3">
+            {assignedStudentIds.length}
+          </div>
+        </div>
+
+        <div className="bg-[#EBFD78] rounded-[28px] p-6 shadow-sm flex flex-col justify-between text-[#111315]">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-[#111315]/80">Pending Reviews</span>
+            <CheckSquare className="w-4 h-4 text-[#111315]" />
+          </div>
+          <div className="text-3xl font-bold text-[#111315] mt-3">
+            {pendingCount}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-[28px] p-6 border border-black/[0.06] shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-[#737780]">Approved by You</span>
+            <UserCheck className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div className="text-3xl font-bold text-[#111315] mt-3">
+            {approvedCount || 0}
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="bg-card shadow-sm">
-          <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between text-xs">
-              My Assigned Students <Users className="w-4 h-4 text-blue-500" />
-            </CardDescription>
-            <CardTitle className="text-2xl font-bold">
-              {isAdmin ? 'All Students (Admin)' : assignedStudentIds.length}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        
-        <Card className="bg-card shadow-sm border-amber-500/30">
-          <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between text-xs text-amber-600 font-medium">
-              Pending Reviews <CheckSquare className="w-4 h-4 text-amber-500" />
-            </CardDescription>
-            <CardTitle className="text-2xl font-bold text-amber-600">
-              {pendingCount}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card className="bg-card shadow-sm">
-          <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between text-xs">
-              Reviewed by Me <UserCheck className="w-4 h-4 text-emerald-500" />
-            </CardDescription>
-            <CardTitle className="text-2xl font-bold text-emerald-600">
-              {approvedCount || 0}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-
-      {/* Pending reviews queue */}
-      <Card className="bg-card shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
+      {/* Pending Reviews Table Card */}
+      <div className="bg-white rounded-[28px] p-6 sm:p-7 border border-black/[0.06] shadow-sm">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <CardTitle className="text-base font-semibold">Submissions Awaiting Verification</CardTitle>
-            <CardDescription className="text-xs">Student answers requiring your feedback and sign-off</CardDescription>
+            <h3 className="font-bold text-base text-[#111315]">Pending Concept Submissions</h3>
+            <p className="text-xs text-[#737780] mt-0.5">Students awaiting your evaluation and attendance sign-off</p>
           </div>
-          <Link href="/tutor/attendance" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-            View All <ArrowRight className="w-3 h-3" />
+          <Link href="/tutor/attendance" className="text-xs font-semibold text-[#111315] hover:opacity-75 flex items-center gap-1">
+            Review All <ArrowRight className="w-3 h-3" />
           </Link>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {pendingReviews?.map((rec: any) => (
-              <div key={rec.id} className="flex items-center justify-between p-3.5 rounded-lg border bg-background/50 text-xs">
-                <div>
-                  <p className="font-semibold text-sm">{rec.profiles?.full_name}</p>
-                  <p className="text-muted-foreground">{rec.schedules?.title} • {new Date(rec.attendance_date).toLocaleDateString()}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-amber-600 border-amber-300 bg-amber-50/50 uppercase text-[10px]">
-                    Pending
-                  </Badge>
-                  <Link
-                    href={`/tutor/attendance/${rec.id}`}
-                    className="inline-flex items-center justify-center rounded bg-primary text-primary-foreground hover:bg-primary/90 h-7 px-2.5 text-xs font-medium"
-                  >
-                    Review
-                  </Link>
-                </div>
+        </div>
+
+        <div className="space-y-3">
+          {pendingReviews?.map((rec: any) => (
+            <div key={rec.id} className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F9FAFB] border border-black/[0.04] text-xs">
+              <div>
+                <p className="font-bold text-sm text-[#111315]">{rec.profiles?.full_name || 'Student'}</p>
+                <p className="text-[#737780] text-[11px] mt-0.5">
+                  {rec.schedules?.title} • {new Date(rec.attendance_date).toLocaleDateString()}
+                </p>
               </div>
-            ))}
-            {(!pendingReviews || pendingReviews.length === 0) && (
-              <div className="text-center py-8 text-muted-foreground text-xs">
-                No submissions waiting for review right now!
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              <Link
+                href={`/tutor/attendance#review-${rec.id}`}
+                className="px-4 py-1.5 rounded-full bg-[#111215] text-white hover:bg-black font-semibold text-[11px] transition-all shadow-sm"
+              >
+                Evaluate Answer
+              </Link>
+            </div>
+          ))}
+          {(!pendingReviews || pendingReviews.length === 0) && (
+            <div className="text-center py-8 text-[#737780] text-xs">
+              No pending reviews! All assigned student submissions have been evaluated.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

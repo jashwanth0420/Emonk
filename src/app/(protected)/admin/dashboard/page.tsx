@@ -1,8 +1,20 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
+import { PillTabsBar } from '@/components/layout/PillTabsBar'
+import { BentoDashboard } from '@/components/dashboard/BentoDashboard'
 import Link from 'next/link'
-import { Users, UserSquare, Calendar, BookOpen, HelpCircle, CheckSquare, Sparkles, PlusCircle, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
+
+const adminPillTabs = [
+  { href: '/admin/dashboard', label: 'Organization' },
+  { href: '/admin/students', label: 'Teams' },
+  { href: '/admin/tutors', label: 'Users' },
+  { href: '/admin/schedules', label: 'Subscription' },
+  { href: '/admin/topics', label: 'Payment' },
+  { href: '/admin/questions', label: 'Installed Apps' },
+  { href: '/admin/ai', label: 'Variables' },
+  { href: '/admin/analytics', label: 'Scenario Properties' },
+]
 
 export default async function AdminDashboard() {
   const adminClient = createAdminClient()
@@ -34,156 +46,125 @@ export default async function AdminDashboard() {
       .limit(3)
   ])
 
+  const stats = {
+    studentCount: studentCount || 0,
+    tutorCount: tutorCount || 0,
+    topicCount: topicCount || 0,
+    scheduleCount: scheduleCount || 0,
+    questionCount: questionCount || 0,
+    pendingReviewCount: pendingReviewCount || 0,
+    recentAttendance: recentAttendance || [],
+    upcomingSchedules: upcomingSchedules || [],
+  }
+
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
-      {/* Header banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5">
-        <div>
-          <h1 className="page-title text-foreground">Super Admin Overview</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            System health, active student attendances, and automated verification pipeline.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/admin/ai"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-accent hover:bg-accent-hover text-white font-medium transition-colors text-xs shadow hover:opacity-95 transition"
-          >
-            <Sparkles className="w-3.5 h-3.5" /> AI Generator
-          </Link>
-          <Link
-            href="/admin/schedules"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90 font-medium text-xs shadow hover:opacity-90 transition"
-          >
-            <PlusCircle className="w-3.5 h-3.5" /> New Schedule
-          </Link>
-        </div>
-      </div>
+    <div className="space-y-6">
+      {/* Top Playful Headline with Inline Badges matching Reference UI */}
+      <DesignPageHeader
+        firstLinePrefix="Managing"
+        firstLineSuffix="Your Team"
+        secondLinePrefix="and"
+        secondLineSuffix="Workflows"
+        actionLabel="+ Create a New Scenario"
+        actionHref="/admin/schedules"
+        settingsHref="/admin/analytics"
+      />
 
-      {/* KPI Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Card className="bg-card shadow-sm border">
-          <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between card-label">
-              Students <Users className="w-4 h-4 text-blue-500" />
-            </CardDescription>
-            <CardTitle className="stat-number">{studentCount || 0}</CardTitle>
-          </CardHeader>
-        </Card>
+      {/* Horizontal Pill Tabs Bar matching Reference UI */}
+      <PillTabsBar tabs={adminPillTabs} className="mb-2" />
 
-        <Card className="bg-card shadow-sm border">
-          <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between card-label">
-              Tutors <UserSquare className="w-4 h-4 text-emerald-500" />
-            </CardDescription>
-            <CardTitle className="stat-number">{tutorCount || 0}</CardTitle>
-          </CardHeader>
-        </Card>
+      {/* Main Bento Grid matching Reference UI */}
+      <BentoDashboard stats={stats} />
 
-        <Card className="bg-card shadow-sm border">
-          <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between card-label">
-              Curriculum Topics <BookOpen className="w-4 h-4 text-purple-500" />
-            </CardDescription>
-            <CardTitle className="stat-number">{topicCount || 0}</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card className="bg-card shadow-sm border">
-          <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between card-label">
-              Active Schedules <Calendar className="w-4 h-4 text-indigo-500" />
-            </CardDescription>
-            <CardTitle className="stat-number">{scheduleCount || 0}</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card className="bg-card shadow-sm border">
-          <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between card-label">
-              Question Bank <HelpCircle className="w-4 h-4 text-cyan-500" />
-            </CardDescription>
-            <CardTitle className="stat-number">{questionCount || 0}</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card className="bg-card shadow-sm border border-amber-500/30">
-          <CardHeader className="p-4 pb-2">
-            <CardDescription className="flex items-center justify-between card-label text-amber-600 font-medium">
-              Pending Reviews <CheckSquare className="w-4 h-4 text-amber-500" />
-            </CardDescription>
-            <CardTitle className="stat-number text-amber-600">{pendingReviewCount || 0}</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-
-      {/* Main Sections Grid */}
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* Live Operational Feeds Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
         {/* Recent Attendance Submissions */}
-        <Card className="bg-card shadow-sm border">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
+        <div className="bg-white rounded-[28px] p-6 sm:p-7 border border-black/[0.06] shadow-sm">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <CardTitle className="section-title">Recent Attendance Records</CardTitle>
-              <CardDescription className="text-xs">Latest student submissions across all schedules</CardDescription>
+              <h3 className="font-bold text-base text-[#111315] tracking-tight">Recent Attendance Records</h3>
+              <p className="text-xs text-[#737780] mt-0.5">Latest student check-in submissions</p>
             </div>
-            <Link href="/admin/analytics" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+            <Link
+              href="/admin/analytics"
+              className="text-xs font-semibold text-[#111315] hover:opacity-75 flex items-center gap-1 transition-opacity"
+            >
               Analytics <ArrowRight className="w-3 h-3" />
             </Link>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentAttendance?.map((rec: any) => (
-                <div key={rec.id} className="flex items-center justify-between p-3 rounded-lg border bg-background/50 text-xs">
-                  <div>
-                    <p className="font-semibold text-sm">{rec.profiles?.full_name || 'Student'}</p>
-                    <p className="text-muted-foreground">{rec.schedules?.title} • {new Date(rec.attendance_date).toLocaleDateString()}</p>
-                  </div>
-                  <Badge variant={rec.status === 'approved' ? 'default' : rec.status === 'pending_review' ? 'outline' : 'secondary'} className="uppercase text-[10px]">
-                    {rec.status.replace('_', ' ')}
-                  </Badge>
-                </div>
-              ))}
-              {(!recentAttendance || recentAttendance.length === 0) && (
-                <div className="text-center py-8 text-muted-foreground text-xs">
-                  No attendance records logged yet.
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Upcoming Schedules & Quick Setup */}
-        <Card className="bg-card shadow-sm border">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <div>
-              <CardTitle className="section-title">Active & Upcoming Sessions</CardTitle>
-              <CardDescription className="text-xs">Scheduled learning blocks students can check into</CardDescription>
-            </div>
-            <Link href="/admin/schedules" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-              All Schedules <ArrowRight className="w-3 h-3" />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {upcomingSchedules?.map((s) => (
-                <div key={s.id} className="p-3 rounded-lg border bg-background/50 space-y-1 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-sm">{s.title}</span>
-                    <Badge variant="outline" className="text-[10px]">{s.topics?.name || 'General'}</Badge>
-                  </div>
-                  <p className="text-muted-foreground">
-                    Date: {new Date(s.date).toLocaleDateString()} | Time: {s.start_time.slice(0, 5)} - {s.end_time.slice(0, 5)}
+          <div className="space-y-3">
+            {recentAttendance?.map((rec: any) => (
+              <div
+                key={rec.id}
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F9FAFB] border border-black/[0.04] text-xs transition-colors hover:bg-gray-100/70"
+              >
+                <div>
+                  <p className="font-bold text-sm text-[#111315]">{rec.profiles?.full_name || 'Student'}</p>
+                  <p className="text-[#737780] text-[11px] mt-0.5">
+                    {rec.schedules?.title} • {new Date(rec.attendance_date).toLocaleDateString()}
                   </p>
                 </div>
-              ))}
-              {(!upcomingSchedules || upcomingSchedules.length === 0) && (
-                <div className="text-center py-8 text-muted-foreground text-xs">
-                  No upcoming schedules. Click &ldquo;New Schedule&rdquo; above to create one.
-                </div>
-              )}
+                <span
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    rec.status === 'approved'
+                      ? 'bg-[#EBFD78] text-[#111315]'
+                      : rec.status === 'pending_review'
+                      ? 'bg-[#111315] text-white'
+                      : 'bg-gray-200 text-[#111315]'
+                  }`}
+                >
+                  {rec.status.replace('_', ' ')}
+                </span>
+              </div>
+            ))}
+            {(!recentAttendance || recentAttendance.length === 0) && (
+              <div className="text-center py-8 text-[#737780] text-xs">
+                No attendance records logged yet.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Active & Upcoming Sessions */}
+        <div className="bg-white rounded-[28px] p-6 sm:p-7 border border-black/[0.06] shadow-sm">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="font-bold text-base text-[#111315] tracking-tight">Active & Upcoming Sessions</h3>
+              <p className="text-xs text-[#737780] mt-0.5">Scheduled learning blocks in the system</p>
             </div>
-          </CardContent>
-        </Card>
+            <Link
+              href="/admin/schedules"
+              className="text-xs font-semibold text-[#111315] hover:opacity-75 flex items-center gap-1 transition-opacity"
+            >
+              All Schedules <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          <div className="space-y-3">
+            {upcomingSchedules?.map((s) => (
+              <div
+                key={s.id}
+                className="p-3.5 rounded-2xl bg-[#F9FAFB] border border-black/[0.04] text-xs transition-colors hover:bg-gray-100/70"
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-bold text-sm text-[#111315]">{s.title}</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-white border border-black/[0.08] text-[10px] font-bold text-[#111315]">
+                    {s.topics?.name || 'General'}
+                  </span>
+                </div>
+                <p className="text-[#737780] text-[11px]">
+                  Date: {new Date(s.date).toLocaleDateString()} | Time: {s.start_time.slice(0, 5)} - {s.end_time.slice(0, 5)}
+                </p>
+              </div>
+            ))}
+            {(!upcomingSchedules || upcomingSchedules.length === 0) && (
+              <div className="text-center py-8 text-[#737780] text-xs">
+                No upcoming schedules. Click &ldquo;+ Create a New Scenario&rdquo; above to create one.
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
