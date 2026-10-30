@@ -1,14 +1,40 @@
 'use client'
 
 import Link from 'next/link'
-import { Settings, Plus, Sparkles, LucideIcon } from 'lucide-react'
+import {
+  Settings,
+  Plus,
+  Sparkles,
+  Users,
+  GraduationCap,
+  UserCheck,
+  Calendar,
+  BookOpen,
+  Activity,
+  Brain,
+  HelpCircle,
+  LucideIcon
+} from 'lucide-react'
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  Settings,
+  Sparkles,
+  Users,
+  GraduationCap,
+  UserCheck,
+  Calendar,
+  BookOpen,
+  Activity,
+  Brain,
+  HelpCircle
+}
 
 interface DesignPageHeaderProps {
   firstLinePrefix?: string
-  firstLinePillIcon?: LucideIcon
+  firstLinePillIconName?: string
   firstLineSuffix?: string
   secondLinePrefix?: string
-  secondLinePillIcon?: LucideIcon
+  secondLinePillIconName?: string
   secondLineSuffix?: string
   actionLabel?: string
   actionHref?: string
@@ -17,15 +43,18 @@ interface DesignPageHeaderProps {
 
 export function DesignPageHeader({
   firstLinePrefix = 'Managing',
-  firstLinePillIcon: FirstIcon = Settings,
+  firstLinePillIconName = 'Settings',
   firstLineSuffix = 'Student Attendance',
   secondLinePrefix = 'and',
-  secondLinePillIcon: SecondIcon = Sparkles,
+  secondLinePillIconName = 'Sparkles',
   secondLineSuffix = 'Progress',
   actionLabel = '+ Create New Schedule',
   actionHref = '/admin/schedules',
   settingsHref = '/admin/analytics',
 }: DesignPageHeaderProps) {
+  const FirstIcon = ICON_MAP[firstLinePillIconName] || Settings
+  const SecondIcon = ICON_MAP[secondLinePillIconName] || Sparkles
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 mb-4 sm:mb-6 w-full max-w-full">
       {/* Big Playful Headline with Inline Rounded Badges */}

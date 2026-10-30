@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Users } from 'lucide-react'
 import { createUserAction, assignStudentToTutorAction, unassignStudentAction } from '../actions'
 
 const adminPillTabs = [
@@ -60,7 +59,7 @@ export default async function StudentsPage({
     <div className="space-y-5 sm:space-y-6 w-full max-w-full overflow-x-hidden">
       <DesignPageHeader
         firstLinePrefix="Managing"
-        firstLinePillIcon={Users}
+        firstLinePillIconName="Users"
         firstLineSuffix="Your Students"
         secondLinePrefix="and"
         secondLineSuffix="Enrolments"

@@ -4,7 +4,7 @@ import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
 import { PillTabsBar } from '@/components/layout/PillTabsBar'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Calendar, CheckCircle2, Clock, BookOpen, ArrowRight, GraduationCap } from 'lucide-react'
+import { Calendar, CheckCircle2, Clock, BookOpen, ArrowRight } from 'lucide-react'
 import { checkInAction } from '../actions'
 
 const studentPillTabs = [
@@ -72,7 +72,7 @@ export default async function StudentDashboard() {
       {/* Top Playful Headline with Inline Badges */}
       <DesignPageHeader
         firstLinePrefix={profile?.full_name ? `Welcome, ${profile.full_name.split(' ')[0]}` : 'Learning'}
-        firstLinePillIcon={GraduationCap}
+        firstLinePillIconName="GraduationCap"
         firstLineSuffix="Your Track"
         secondLinePrefix="and"
         secondLineSuffix="Progress"

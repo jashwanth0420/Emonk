@@ -58,7 +58,7 @@ export default async function TutorDashboard() {
       {/* Top Playful Headline with Inline Badges */}
       <DesignPageHeader
         firstLinePrefix="Mentoring"
-        firstLinePillIcon={UserCheck}
+        firstLinePillIconName="UserCheck"
         firstLineSuffix="Your Students"
         secondLinePrefix="and"
         secondLineSuffix="Submissions"

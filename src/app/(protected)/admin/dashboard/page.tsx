@@ -3,7 +3,7 @@ import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
 import { PillTabsBar } from '@/components/layout/PillTabsBar'
 import { BentoDashboard } from '@/components/dashboard/BentoDashboard'
 import Link from 'next/link'
-import { ArrowRight, Users } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 const adminPillTabs = [
   { href: '/admin/dashboard', label: 'Overview' },
@@ -63,7 +63,7 @@ export default async function AdminDashboard() {
       {/* Top Playful Headline with Inline Badges matching Emonk Attendance */}
       <DesignPageHeader
         firstLinePrefix="Managing"
-        firstLinePillIcon={Users}
+        firstLinePillIconName="Users"
         firstLineSuffix="Student Attendance"
         secondLinePrefix="and"
         secondLineSuffix="Progress"
