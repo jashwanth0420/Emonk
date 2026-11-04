@@ -32,7 +32,6 @@ export function PillTabsBar({ tabs, className = '' }: PillTabsBarProps) {
             <Link
               key={tab.href}
               href={tab.href}
-              prefetch={false}
               className={`rounded-full px-4 py-2 sm:px-5 sm:py-2 text-xs font-semibold tracking-tight transition-all shadow-xs shrink-0 select-none ${
                 isActive
                   ? 'bg-[#111215] text-white shadow-sm'
