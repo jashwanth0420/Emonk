@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { createUserAction, assignStudentToTutorAction, unassignStudentAction } from '../actions'
+import { unstable_cache } from 'next/cache'
 
 const adminPillTabs = [
   { href: '/admin/dashboard', label: 'Overview' },
@@ -19,33 +20,42 @@ const adminPillTabs = [
   { href: '/admin/posts', label: 'Community Feed' },
 ]
 
+const getCachedStudentsData = unstable_cache(
+  async () => {
+    const adminClient = createAdminClient()
+    const [
+      { data: students },
+      { data: tutors },
+      { data: assignments }
+    ] = await Promise.all([
+      adminClient
+        .from('profiles')
+        .select('*')
+        .eq('role', 'student')
+        .order('created_at', { ascending: false }),
+      adminClient
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('role', 'tutor')
+        .eq('status', 'active'),
+      adminClient
+        .from('tutor_student_assignments')
+        .select('id, student_id, tutor_id, profiles!tutor_id(full_name)')
+        .eq('status', 'active')
+    ])
+    return { students: students || [], tutors: tutors || [], assignments: assignments || [] }
+  },
+  ['admin-students-data-v1'],
+  { revalidate: 10, tags: ['students-data'] }
+)
+
 export default async function StudentsPage({
   searchParams
 }: {
   searchParams: Promise<{ success?: string; error?: string }>
 }) {
   const { success, error } = await searchParams
-  const adminClient = createAdminClient()
-
-  // 1. Fetch all students
-  const { data: students } = await adminClient
-    .from('profiles')
-    .select('*')
-    .eq('role', 'student')
-    .order('created_at', { ascending: false })
-
-  // 2. Fetch all tutors
-  const { data: tutors } = await adminClient
-    .from('profiles')
-    .select('id, full_name, email')
-    .eq('role', 'tutor')
-    .eq('status', 'active')
-
-  // 3. Fetch tutor assignments
-  const { data: assignments } = await adminClient
-    .from('tutor_student_assignments')
-    .select('id, student_id, tutor_id, profiles!tutor_id(full_name)')
-    .eq('status', 'active')
+  const { students, tutors, assignments } = await getCachedStudentsData()
 
   const assignmentMap = new Map()
   assignments?.forEach((a: any) => {
@@ -87,19 +97,19 @@ export default async function StudentsPage({
         <div id="create" className="lg:col-span-1 rounded-[28px] border border-black/[0.06] p-5 sm:p-6 bg-white shadow-sm h-fit space-y-4">
           <h2 className="text-base font-bold text-[#111315]">Create New Student</h2>
           <p className="text-xs text-[#737780]">Creates auth login credentials and a student profile.</p>
-          <form action={createUserAction} className="space-y-4">
+          <form action={createUserAction} className="space-y-4" autoComplete="off">
             <input type="hidden" name="role" value="student" />
             <div className="space-y-1.5">
               <Label htmlFor="fullName" className="text-xs font-semibold text-[#111315]">Full Name</Label>
-              <Input id="fullName" name="fullName" placeholder="Enter full name" className="rounded-xl border-black/[0.08]" required />
+              <Input id="fullName" name="fullName" placeholder="e.g. Alex Johnson" autoComplete="off" className="rounded-xl border-black/[0.08]" required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-xs font-semibold text-[#111315]">Email Address</Label>
-              <Input id="email" name="email" type="email" placeholder="Enter email address" className="rounded-xl border-black/[0.08]" required />
+              <Input id="email" name="email" type="email" placeholder="student@emonk.edu" autoComplete="off" className="rounded-xl border-black/[0.08]" required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-xs font-semibold text-[#111315]">Initial Password</Label>
-              <Input id="password" name="password" type="password" placeholder="At least 6 characters" className="rounded-xl border-black/[0.08]" required />
+              <Input id="password" name="password" type="password" placeholder="At least 6 characters" autoComplete="new-password" className="rounded-xl border-black/[0.08]" required />
             </div>
             <Button type="submit" className="w-full rounded-full bg-[#111215] hover:bg-black text-white font-semibold">
               Create Student Account

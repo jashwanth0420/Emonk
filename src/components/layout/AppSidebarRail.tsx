@@ -85,6 +85,7 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
               <div key={item.href} className="relative group">
                 <Link
                   href={item.href}
+                  prefetch={false}
                   className={`w-11 h-11 rounded-[16px] flex items-center justify-center transition-all ${
                     isActive
                       ? 'bg-[#24262B] text-white shadow-sm'
@@ -110,6 +111,7 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
         <div className="mt-auto flex flex-col items-center gap-2 pt-4 border-t border-[#1E2024]">
           <Link
             href="/admin/posts"
+            prefetch={false}
             className="w-11 h-11 rounded-[16px] flex items-center justify-center text-[#7A7E86] hover:text-white hover:bg-white/5 transition-all group relative"
             title="Updates & Guides"
           >
@@ -123,6 +125,7 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
 
           <Link
             href="/admin/ai"
+            prefetch={false}
             className="w-11 h-11 rounded-[16px] flex items-center justify-center text-[#7A7E86] hover:text-[#EBFD78] hover:bg-white/5 transition-all group relative"
             title="AI Generator"
           >
@@ -167,6 +170,7 @@ export function AppSidebarRail({ items, userRole }: AppSidebarRailProps) {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={false}
               className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all ${
                 isActive ? 'text-[#EBFD78] bg-[#24262B]' : 'text-[#7A7E86] hover:text-white'
               }`}

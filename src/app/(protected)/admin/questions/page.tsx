@@ -1,14 +1,44 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
+import { PillTabsBar } from '@/components/layout/PillTabsBar'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import Link from 'next/link'
-import { Sparkles, PlusCircle } from 'lucide-react'
+import { PlusCircle } from 'lucide-react'
 import { reviewGeneratedQuestionAction, createQuestionAction } from '../actions'
 import { QuestionDetailsModal } from './QuestionDetailsModal'
+import { unstable_cache } from 'next/cache'
+
+const adminPillTabs = [
+  { href: '/admin/dashboard', label: 'Overview' },
+  { href: '/admin/students', label: 'Students' },
+  { href: '/admin/tutors', label: 'Tutors' },
+  { href: '/admin/schedules', label: 'Schedules' },
+  { href: '/admin/topics', label: 'Topics' },
+  { href: '/admin/questions', label: 'Question Bank' },
+  { href: '/admin/ai', label: 'AI Generator' },
+  { href: '/admin/analytics', label: 'Analytics' },
+  { href: '/admin/posts', label: 'Community Feed' },
+]
+
+const getCachedQuestionsData = unstable_cache(
+  async () => {
+    const adminClient = createAdminClient()
+    const [
+      { data: questions },
+      { data: topics }
+    ] = await Promise.all([
+      adminClient.from('questions').select('*, topics(name)').order('created_at', { ascending: false }),
+      adminClient.from('topics').select('id, name').eq('is_active', true).order('name')
+    ])
+    return { questions: questions || [], topics: topics || [] }
+  },
+  ['admin-questions-data-v1'],
+  { revalidate: 10, tags: ['questions-data'] }
+)
 
 export default async function AdminQuestionsPage({
   searchParams
@@ -16,32 +46,22 @@ export default async function AdminQuestionsPage({
   searchParams: Promise<{ success?: string; error?: string }>
 }) {
   const { success, error } = await searchParams
-  const adminClient = createAdminClient()
-  
-  const [
-    { data: questions },
-    { data: topics }
-  ] = await Promise.all([
-    adminClient.from('questions').select('*, topics(name)').order('created_at', { ascending: false }),
-    adminClient.from('topics').select('id, name').eq('is_active', true).order('name')
-  ])
+  const { questions, topics } = await getCachedQuestionsData()
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="page-title text-foreground">Question Bank</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Targeted concept questions automatically presented to students upon session check-in.
-          </p>
-        </div>
-        <Link 
-          href="/admin/ai" 
-          className="inline-flex items-center gap-1.5 rounded-md text-xs font-medium bg-accent hover:bg-accent-hover text-white transition-colors shadow hover:opacity-90 h-9 px-3.5 py-2"
-        >
-          <Sparkles className="w-3.5 h-3.5" /> Generate in Bulk with AI
-        </Link>
-      </div>
+    <div className="space-y-5 sm:space-y-6 w-full max-w-full overflow-x-hidden">
+      <DesignPageHeader
+        firstLinePrefix="Managing"
+        firstLinePillIconName="HelpCircle"
+        firstLineSuffix="Question Bank"
+        secondLinePrefix="and"
+        secondLineSuffix="Assessments"
+        actionLabel="+ Generate with AI"
+        actionHref="/admin/ai"
+        settingsHref="/admin/analytics"
+      />
+
+      <PillTabsBar tabs={adminPillTabs} className="mb-2" />
 
       {success && (
         <div className="p-4 rounded-md bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-300 text-sm">
@@ -62,7 +82,7 @@ export default async function AdminQuestionsPage({
             <PlusCircle className="w-4 h-4 text-primary" />
             <h2 className="text-lg font-semibold">Add Question Manually</h2>
           </div>
-          <form action={createQuestionAction} className="space-y-3.5">
+          <form action={createQuestionAction} className="space-y-3.5" autoComplete="off">
             <div className="space-y-1.5">
               <Label htmlFor="topic_id">Topic</Label>
               <select

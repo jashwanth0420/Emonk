@@ -166,7 +166,7 @@ export default async function AdminDashboard() {
                 <div className="flex justify-between items-center mb-1 gap-2">
                   <span className="font-bold text-xs sm:text-sm text-[#111315] truncate">{s.title}</span>
                   <span className="px-2.5 py-0.5 rounded-full bg-white border border-black/[0.08] text-[10px] font-bold text-[#111315] shrink-0">
-                    {s.topics?.name || 'General'}
+                    {(Array.isArray(s.topics) ? s.topics[0]?.name : (s.topics as any)?.name) || 'General'}
                   </span>
                 </div>
                 <p className="text-[#737780] text-[11px] truncate">

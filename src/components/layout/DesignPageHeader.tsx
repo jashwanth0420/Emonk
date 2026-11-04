@@ -13,6 +13,7 @@ import {
   Activity,
   Brain,
   HelpCircle,
+  MessageSquare,
   LucideIcon
 } from 'lucide-react'
 
@@ -26,7 +27,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   BookOpen,
   Activity,
   Brain,
-  HelpCircle
+  HelpCircle,
+  MessageSquare,
 }
 
 interface DesignPageHeaderProps {

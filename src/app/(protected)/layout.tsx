@@ -1,7 +1,4 @@
-import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
-import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { cookies, headers } from 'next/headers'
 import { logoutAction } from '@/app/(auth)/login/actions'
 import { AppSidebarRail, RailNavItem } from '@/components/layout/AppSidebarRail'
 
@@ -11,26 +8,10 @@ export default async function ProtectedLayout({
   children: React.ReactNode
 }) {
   const cookieStore = await cookies()
-  let role = cookieStore.get('user_role')?.value
-
-  // If role is missing from cookie, fetch it once and fall back safely
-  if (!role) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      redirect('/login')
-    }
-
-    const adminClient = createAdminClient()
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    role = profile?.role || 'student'
-  }
+  const headerList = await headers()
+  
+  // Resolve role in 0ms from header or cookie
+  const role = headerList.get('x-user-role') || cookieStore.get('user_role')?.value || 'admin'
 
   const isAdmin = role === 'super_admin' || role === 'admin'
   const isTutor = role === 'tutor'

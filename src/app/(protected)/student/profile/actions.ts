@@ -21,7 +21,8 @@ export async function updateProfileAction(formData: FormData) {
 
   const result = profileSchema.safeParse(rawData)
   if (!result.success) {
-    redirect(`/student/profile?error=${encodeURIComponent(result.error.errors[0].message)}`)
+    const errorMsg = result.error.issues?.[0]?.message || (result.error as any).errors?.[0]?.message || 'Invalid input'
+    redirect(`/student/profile?error=${encodeURIComponent(errorMsg)}`)
   }
 
   const adminClient = createAdminClient()
