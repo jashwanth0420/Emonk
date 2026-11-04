@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getFastUser } from '@/lib/supabase/server'
 import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
 import { PillTabsBar } from '@/components/layout/PillTabsBar'
 import { Button } from '@/components/ui/button'
@@ -17,22 +17,28 @@ const studentPillTabs = [
 ]
 
 export default async function StudentDashboard() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const fastUser = await getFastUser()
+  const userId = fastUser?.id || ''
   const adminClient = createAdminClient()
-  const { data: profile } = await adminClient.from('profiles').select('full_name').eq('id', user?.id).single()
-
   const today = new Date().toISOString().split('T')[0]
 
-  // 1. Check for today's active schedules
-  const { data: todaySchedules } = await adminClient
-    .from('schedules')
-    .select('*, topics(name)')
-    .eq('date', today)
-    .eq('status', 'active')
+  // Concurrently fetch profile, today's schedule, and attendance history in a single roundtrip
+  const [
+    { data: profile },
+    { data: todaySchedules },
+    { data: history }
+  ] = await Promise.all([
+    adminClient.from('profiles').select('full_name').eq('id', userId).single(),
+    adminClient.from('schedules').select('*, topics(name)').eq('date', today).eq('status', 'active'),
+    adminClient
+      .from('attendance')
+      .select('id, status, attendance_date, schedules(title, topics(name))')
+      .eq('student_id', userId)
+      .order('attendance_date', { ascending: false })
+      .limit(4)
+  ])
 
-  // 2. Fallback to latest available active schedule if none for today
+  // Fallback to latest available active schedule if none for today
   let activeSchedule = todaySchedules?.[0]
   if (!activeSchedule) {
     const { data: anySchedules } = await adminClient
@@ -44,25 +50,17 @@ export default async function StudentDashboard() {
     activeSchedule = anySchedules?.[0]
   }
 
-  // 3. Check student attendance for the active schedule
+  // Check student attendance for the active schedule
   let attendanceRecord: any = null
-  if (activeSchedule && user) {
+  if (activeSchedule && userId) {
     const { data } = await adminClient
       .from('attendance')
       .select('*')
       .eq('schedule_id', activeSchedule.id)
-      .eq('student_id', user.id)
+      .eq('student_id', userId)
       .maybeSingle()
     attendanceRecord = data
   }
-
-  // 4. Fetch attendance history
-  const { data: history } = await adminClient
-    .from('attendance')
-    .select('id, status, attendance_date, schedules(title, topics(name))')
-    .eq('student_id', user?.id)
-    .order('attendance_date', { ascending: false })
-    .limit(4)
 
   const approvedCount = history?.filter(h => h.status === 'approved').length || 0
   const pendingCount = history?.filter(h => h.status === 'pending_review').length || 0

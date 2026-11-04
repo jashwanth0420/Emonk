@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getFastUser } from '@/lib/supabase/server'
 import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
 import { PillTabsBar } from '@/components/layout/PillTabsBar'
 import Link from 'next/link'
@@ -12,25 +12,31 @@ const tutorPillTabs = [
 ]
 
 export default async function TutorDashboard() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
+  const fastUser = await getFastUser()
+  const userId = fastUser?.id || ''
+  const isAdmin = fastUser?.role === 'super_admin' || fastUser?.role === 'admin'
   const adminClient = createAdminClient()
-  const { data: profile } = await adminClient.from('profiles').select('full_name, role').eq('id', user?.id).single()
-  const isAdmin = profile?.role === 'super_admin' || profile?.role === 'admin'
 
-  // Get assigned students
-  let assignedStudentIds: string[] = []
-  if (user) {
-    const { data: assignments } = await adminClient
+  // Concurrently fetch assignments and approved count in a single roundtrip
+  const [
+    { data: assignments },
+    { count: approvedCount }
+  ] = await Promise.all([
+    adminClient
       .from('tutor_student_assignments')
       .select('student_id')
-      .eq('tutor_id', user.id)
-      .eq('status', 'active')
-    assignedStudentIds = assignments?.map(a => a.student_id) || []
-  }
+      .eq('tutor_id', userId)
+      .eq('status', 'active'),
+    adminClient
+      .from('attendance')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'approved')
+      .eq('approved_by', userId)
+  ])
 
-  // Pending reviews count
+  const assignedStudentIds = assignments?.map(a => a.student_id) || []
+
+  // Pending reviews query
   let pendingQuery = adminClient
     .from('attendance')
     .select('id, attendance_date, profiles:student_id(full_name), schedules(title)')
@@ -43,15 +49,6 @@ export default async function TutorDashboard() {
 
   const { data: pendingReviews } = await pendingQuery.limit(5)
   const pendingCount = pendingReviews?.length || 0
-
-  // Approved count
-  const approvedQuery = adminClient
-    .from('attendance')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'approved')
-    .eq('approved_by', user?.id)
-
-  const { count: approvedCount } = await approvedQuery
 
   return (
     <div className="space-y-5 sm:space-y-6 w-full max-w-full overflow-x-hidden">

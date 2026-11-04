@@ -81,9 +81,9 @@ export default async function SchedulesPage({
           <form action={createScheduleAction} className="space-y-4" autoComplete="off">
             <div className="space-y-1.5">
               <Label htmlFor="title" className="text-xs font-semibold text-[#111315]">Session Title</Label>
-              <Input id="title" name="title" required placeholder="e.g. Data Structures & Algorithms - Daily Lab" autoComplete="off" className="rounded-xl border-black/[0.08]" />
+              <Input id="title" name="title" required autoComplete="off" className="rounded-xl border-black/[0.08]" />
             </div>
-            
+
             <div className="space-y-1.5">
               <Label htmlFor="topic_id" className="text-xs font-semibold text-[#111315]">Core Topic</Label>
               <select

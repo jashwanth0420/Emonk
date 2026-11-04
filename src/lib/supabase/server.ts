@@ -25,3 +25,21 @@ export async function createClient() {
     }
   )
 }
+
+export async function getFastUser(): Promise<{ id: string; role: string } | null> {
+  const { headers } = await import('next/headers')
+  const headerList = await headers()
+  const cookieStore = await cookies()
+
+  const id = headerList.get('x-user-id') || cookieStore.get('user_id')?.value
+  const role = headerList.get('x-user-role') || cookieStore.get('user_role')?.value || 'student'
+
+  if (id) {
+    return { id, role }
+  }
+
+  // Fallback to supabase auth getUser
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user ? { id: user.id, role } : null
+}

@@ -25,9 +25,10 @@ export async function loginAction(formData: FormData) {
   const role = profile?.role || 'student'
   const basePath = (role === 'super_admin' || role === 'admin') ? 'admin' : role
 
-  // Store user role in a fast cookie to eliminate DB roundtrips in middleware
+  // Store user role and user id in fast cookies to eliminate DB/auth roundtrips
   const cookieStore = await (await import('next/headers')).cookies()
   cookieStore.set('user_role', role, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 7 })
+  cookieStore.set('user_id', data.user.id, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 7 })
 
   redirect(`/${basePath}/dashboard`)
 }
@@ -37,5 +38,6 @@ export async function logoutAction() {
   await supabase.auth.signOut()
   const cookieStore = await (await import('next/headers')).cookies()
   cookieStore.delete('user_role')
+  cookieStore.delete('user_id')
   redirect('/login')
 }

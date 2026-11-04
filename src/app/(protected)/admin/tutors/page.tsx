@@ -92,11 +92,11 @@ export default async function TutorsPage({
             <input type="hidden" name="role" value="tutor" />
             <div className="space-y-1.5">
               <Label htmlFor="fullName" className="text-xs font-semibold text-[#111315]">Full Name</Label>
-              <Input id="fullName" name="fullName" placeholder="e.g. Dr. Jane Smith" autoComplete="off" className="rounded-xl border-black/[0.08]" required />
+              <Input id="fullName" name="fullName" autoComplete="off" className="rounded-xl border-black/[0.08]" required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-xs font-semibold text-[#111315]">Email Address</Label>
-              <Input id="email" name="email" type="email" placeholder="tutor@emonk.edu" autoComplete="off" className="rounded-xl border-black/[0.08]" required />
+              <Input id="email" name="email" type="email" autoComplete="off" className="rounded-xl border-black/[0.08]" required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-xs font-semibold text-[#111315]">Initial Password</Label>

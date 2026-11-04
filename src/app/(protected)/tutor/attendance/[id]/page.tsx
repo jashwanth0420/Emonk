@@ -90,7 +90,7 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
               <CardTitle>Tutor Decision</CardTitle>
             </CardHeader>
             <CardContent>
-              <form action={reviewAttendanceAction} className="space-y-4">
+              <form action={reviewAttendanceAction} className="space-y-4" autoComplete="off">
                 <input type="hidden" name="attendance_id" value={record.id} />
                 
                 <div className="space-y-2">
