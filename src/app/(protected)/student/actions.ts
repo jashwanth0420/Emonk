@@ -7,6 +7,26 @@ import { retrieveQuestion } from '@/lib/attendance/question-retrieval'
 import { evaluateAnswer } from '@/lib/ai/evaluate-answer'
 import { redirect } from 'next/navigation'
 
+export async function pingStudentPresenceAction(status?: string) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const adminClient = createAdminClient()
+    const updates: Record<string, any> = {
+      last_seen_at: new Date().toISOString(),
+      is_online: true,
+    }
+    if (status) {
+      updates.current_session_status = status
+    }
+    await adminClient.from('profiles').update(updates).eq('id', user.id)
+  } catch (err) {
+    // Fail silently for presence pings
+  }
+}
+
 export async function checkInAction(scheduleId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -161,6 +181,11 @@ export async function submitAnswerAction(formData: FormData) {
     status: 'pending_review',
     question_attempt_id: attempt?.id
   }).eq('id', attendanceId)
+
+  // 5. Update student presence session status
+  await adminClient.from('profiles').update({
+    current_session_status: 'task_submitted'
+  }).eq('id', user.id)
 
   revalidatePath('/student/attendance')
   revalidatePath('/student/dashboard')

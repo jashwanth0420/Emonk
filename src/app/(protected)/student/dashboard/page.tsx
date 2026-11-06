@@ -50,16 +50,26 @@ export default async function StudentDashboard() {
     activeSchedule = anySchedules?.[0]
   }
 
-  // Check student attendance for the active schedule
+  // Check student attendance for today
   let attendanceRecord: any = null
-  if (activeSchedule && userId) {
-    const { data } = await adminClient
+  if (userId) {
+    const { data: todayAtt } = await adminClient
       .from('attendance')
-      .select('*')
-      .eq('schedule_id', activeSchedule.id)
+      .select('*, assigned_tutor:assigned_tutor_id(full_name)')
       .eq('student_id', userId)
+      .eq('attendance_date', today)
       .maybeSingle()
-    attendanceRecord = data
+    attendanceRecord = todayAtt
+
+    if (!attendanceRecord && activeSchedule) {
+      const { data: schedAtt } = await adminClient
+        .from('attendance')
+        .select('*, assigned_tutor:assigned_tutor_id(full_name)')
+        .eq('schedule_id', activeSchedule.id)
+        .eq('student_id', userId)
+        .maybeSingle()
+      attendanceRecord = schedAtt
+    }
   }
 
   const approvedCount = history?.filter(h => h.status === 'approved').length || 0
@@ -122,13 +132,19 @@ export default async function StudentDashboard() {
                 </div>
 
                 {!attendanceRecord ? (
-                  <form action={checkInAction.bind(null, activeSchedule.id)}>
-                    <Button type="submit" className="w-full bg-[#111215] hover:bg-black text-white font-semibold rounded-full py-2.5 shadow-sm transition-all">
-                      Check In & Begin Assessment
-                    </Button>
-                  </form>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                      <span><strong>Status: Online in Pool</strong> — Available for tutors during 4:00 PM – 8:00 PM lab.</span>
+                    </div>
+                    <form action={checkInAction.bind(null, activeSchedule.id)}>
+                      <Button type="submit" className="w-full bg-[#111215] hover:bg-black text-white font-semibold rounded-full py-2.5 shadow-sm transition-all cursor-pointer">
+                        Check In & Begin Assessment
+                      </Button>
+                    </form>
+                  </div>
                 ) : (
-                  <div className="flex flex-col items-center p-4 bg-white border border-black/[0.06] rounded-2xl text-center space-y-2">
+                  <div className="flex flex-col items-center p-4 bg-white border border-black/[0.06] rounded-2xl text-center space-y-2.5">
                     <span 
                       className={`uppercase text-[10px] font-bold px-3 py-1 rounded-full ${
                         attendanceRecord.status === 'approved' 
@@ -138,18 +154,30 @@ export default async function StudentDashboard() {
                     >
                       Status: {attendanceRecord.status.replace('_', ' ')}
                     </span>
+
+                    {attendanceRecord.assigned_tutor && (
+                      <div className="text-xs text-[#111315] font-semibold bg-[#F9FAFB] px-3 py-1.5 rounded-full border border-black/[0.04]">
+                        Mentor: {attendanceRecord.assigned_tutor.full_name}
+                      </div>
+                    )}
+
                     <p className="text-xs text-[#737780] mt-1">
-                      {attendanceRecord.status === 'checked_in' && "You've checked in! Please complete your topic selection."}
-                      {attendanceRecord.status === 'question_assigned' && "Your targeted assessment question is ready for you."}
+                      {attendanceRecord.status === 'checked_in' && "You've checked in! Please complete your topic selection or await tutor instructions."}
+                      {attendanceRecord.status === 'question_assigned' && (
+                        attendanceRecord.assigned_task_instructions
+                          ? `Task assigned by your mentor: "${attendanceRecord.assigned_task_instructions.slice(0, 80)}..."`
+                          : "Your targeted assessment question is ready for you."
+                      )}
                       {attendanceRecord.status === 'pending_review' && "Your answer has been submitted and is pending tutor verification."}
                       {attendanceRecord.status === 'approved' && "Attendance confirmed and approved by your tutor!"}
                     </p>
+
                     {['checked_in', 'question_assigned'].includes(attendanceRecord.status) && (
                       <Link 
                         href="/student/attendance" 
                         className="inline-flex items-center justify-center rounded-full text-xs font-bold bg-[#111215] text-white hover:bg-black h-9 px-5 w-full mt-2 transition-all shadow-sm"
                       >
-                        Continue Session Assessment <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                        Submit Task & Get Attendance <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                       </Link>
                     )}
                   </div>

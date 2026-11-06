@@ -2,8 +2,11 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getFastUser } from '@/lib/supabase/server'
 import { DesignPageHeader } from '@/components/layout/DesignPageHeader'
 import { PillTabsBar } from '@/components/layout/PillTabsBar'
+import { TutorSelfAttendanceCard } from '@/components/tutor/TutorSelfAttendanceCard'
+import { StudentsOnlineList } from '@/components/tutor/StudentsOnlineList'
+import { TutorMenteesList } from '@/components/tutor/TutorMenteesList'
+import { Users, CheckSquare, UserCheck, Sparkles, BookOpen } from 'lucide-react'
 import Link from 'next/link'
-import { Users, CheckSquare, ArrowRight, UserCheck } from 'lucide-react'
 
 const tutorPillTabs = [
   { href: '/tutor/dashboard', label: 'Overview' },
@@ -17,125 +20,165 @@ export default async function TutorDashboard() {
   const isAdmin = fastUser?.role === 'super_admin' || fastUser?.role === 'admin'
   const adminClient = createAdminClient()
 
-  // Concurrently fetch assignments and approved count in a single roundtrip
+  const now = new Date()
+  const today = now.toISOString().split('T')[0]
+  const dateBadge = now.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+
+  // Concurrently fetch tutor attendance, profile, topics, students, and today's attendance records
   const [
-    { data: assignments },
-    { count: approvedCount }
+    { data: tutorProfile },
+    { data: tutorAttData },
+    { data: activeTopics },
+    { data: allStudents },
+    { data: todayAttendance },
+    { data: attemptsData }
   ] = await Promise.all([
-    adminClient
-      .from('tutor_student_assignments')
-      .select('student_id')
-      .eq('tutor_id', userId)
-      .eq('status', 'active'),
-    adminClient
-      .from('attendance')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'approved')
-      .eq('approved_by', userId)
+    adminClient.from('profiles').select('full_name, email, role').eq('id', userId).single(),
+    adminClient.from('tutor_attendance').select('*').eq('tutor_id', userId).eq('attendance_date', today).maybeSingle(),
+    adminClient.from('topics').select('id, name, category').eq('is_active', true).order('name'),
+    adminClient.from('profiles').select('id, full_name, email, register_number, department, year, last_seen_at, is_online, current_session_status').eq('role', 'student').eq('status', 'active'),
+    adminClient.from('attendance')
+      .select('id, student_id, schedule_id, attendance_date, status, assigned_tutor_id, assigned_topic_ids, assigned_task_instructions, approved_by, tutor_feedback, student:student_id(full_name, register_number, department)')
+      .eq('attendance_date', today),
+    adminClient.from('question_attempts').select('id, attendance_id, student_id, answer_text, evaluation_status, ai_evaluation')
   ])
 
-  const assignedStudentIds = assignments?.map(a => a.student_id) || []
+  const tutorName = tutorProfile?.full_name || 'Tutor'
+  const topics = activeTopics || []
+  const todayAttList = todayAttendance || []
 
-  // Pending reviews query
-  let pendingQuery = adminClient
-    .from('attendance')
-    .select('id, attendance_date, profiles:student_id(full_name), schedules(title)')
-    .eq('status', 'pending_review')
-    .order('attendance_date', { ascending: false })
+  // Map of studentId -> attendance record today
+  const studentTodayAttMap = new Map<string, any>()
+  todayAttList.forEach(att => {
+    studentTodayAttMap.set(att.student_id, att)
+  })
 
-  if (!isAdmin) {
-    pendingQuery = pendingQuery.in('student_id', assignedStudentIds.length > 0 ? assignedStudentIds : ['00000000-0000-0000-0000-000000000000'])
-  }
+  // 1. Identify "Students Online" who can be taken
+  // A student is eligible if they are online/recent, and not yet claimed/approved by a tutor today
+  const studentsList = allStudents || []
+  const onlineStudents = studentsList.filter(s => {
+    const todayRecord = studentTodayAttMap.get(s.id)
+    const isAlreadyApproved = todayRecord?.status === 'approved'
+    // If student is already claimed by another tutor and in progress, skip from pool
+    const isClaimedByOther = todayRecord?.assigned_tutor_id && todayRecord.assigned_tutor_id !== userId
+    if (isAlreadyApproved || isClaimedByOther) return false
 
-  const { data: pendingReviews } = await pendingQuery.limit(5)
-  const pendingCount = pendingReviews?.length || 0
+    // If marked online or active status or simply not yet taken today:
+    const isRecent = s.last_seen_at && (now.getTime() - new Date(s.last_seen_at).getTime()) < 3600000 // 1 hour
+    return s.is_online || isRecent || !todayRecord?.assigned_tutor_id
+  })
+
+  // 2. Identify "My Active Mentees Today"
+  // Records assigned to this tutor, or approved by this tutor today
+  const attemptsByAttendanceId = new Map<string, any>()
+  attemptsData?.forEach(att => {
+    attemptsByAttendanceId.set(att.attendance_id, att)
+  })
+
+  const topicsMap = new Map<string, { id: string; name: string }>()
+  topics.forEach(t => topicsMap.set(t.id, t))
+
+  const myMenteesRecords = todayAttList
+    .filter(att => att.assigned_tutor_id === userId || att.approved_by === userId)
+    .map((att: any) => {
+      const topicObjs = (att.assigned_topic_ids || [])
+        .map((tId: string) => topicsMap.get(tId))
+        .filter(Boolean)
+
+      return {
+        id: att.id,
+        student_id: att.student_id,
+        status: att.status,
+        attendance_date: att.attendance_date,
+        assigned_task_instructions: att.assigned_task_instructions,
+        tutor_feedback: att.tutor_feedback,
+        student: att.student,
+        topics: topicObjs,
+        attempt: attemptsByAttendanceId.get(att.id)
+      }
+    })
+
+  const menteesCount = myMenteesRecords.length
+  const pendingApprovalsCount = myMenteesRecords.filter(m => m.status === 'pending_review' || m.status === 'task_submitted' || m.status === 'answer_submitted').length
+  const approvedMenteesCount = myMenteesRecords.filter(m => m.status === 'approved').length
 
   return (
     <div className="space-y-5 sm:space-y-6 w-full max-w-full overflow-x-hidden">
-      {/* Top Playful Headline with Inline Badges */}
+      {/* Top Playful Headline with Date Badge */}
       <DesignPageHeader
-        firstLinePrefix="Mentoring"
+        firstLinePrefix={`Welcome, ${tutorName.split(' ')[0]}`}
         firstLinePillIconName="UserCheck"
-        firstLineSuffix="Your Students"
-        secondLinePrefix="and"
-        secondLineSuffix="Submissions"
+        firstLineSuffix="Lab Shift"
+        secondLinePrefix="Mentoring"
+        secondLineSuffix="4:00 PM – 8:00 PM"
         actionLabel="Review Attendance"
         actionHref="/tutor/attendance"
         settingsHref="/tutor/dashboard"
+        dateBadge={dateBadge}
       />
 
       {/* Horizontal Pill Tabs Bar */}
       <PillTabsBar tabs={tutorPillTabs} className="mb-2" />
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      {/* 1. Tutor Self-Attendance Card for 4:00 PM - 8:00 PM */}
+      <TutorSelfAttendanceCard
+        tutorAttendance={tutorAttData || null}
+        tutorName={tutorName}
+      />
+
+      {/* KPI Stats Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div className="bg-white rounded-[28px] p-6 border border-black/[0.06] shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#737780]">Assigned Students</span>
+            <span className="text-xs font-semibold text-[#737780]">Students in Waiting Pool</span>
             <Users className="w-4 h-4 text-[#111315]" />
           </div>
           <div className="text-3xl font-bold text-[#111315] mt-3">
-            {assignedStudentIds.length}
+            {onlineStudents.length}
           </div>
+          <span className="text-[11px] text-[#737780] mt-1">Available to pick up and assign</span>
         </div>
 
         <div className="bg-[#EBFD78] rounded-[28px] p-6 shadow-sm flex flex-col justify-between text-[#111315]">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#111315]/80">Pending Reviews</span>
-            <CheckSquare className="w-4 h-4 text-[#111315]" />
+            <span className="text-xs font-semibold text-[#111315]/80">My Mentees Today</span>
+            <BookOpen className="w-4 h-4 text-[#111315]" />
           </div>
           <div className="text-3xl font-bold text-[#111315] mt-3">
-            {pendingCount}
+            {menteesCount}
           </div>
+          <span className="text-[11px] text-[#111315]/80 mt-1">
+            {approvedMenteesCount} verified &bull; {pendingApprovalsCount} awaiting review
+          </span>
         </div>
 
         <div className="bg-white rounded-[28px] p-6 border border-black/[0.06] shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#737780]">Approved by You</span>
-            <UserCheck className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs font-semibold text-[#737780]">Submissions Pending Review</span>
+            <CheckSquare className="w-4 h-4 text-amber-600" />
           </div>
           <div className="text-3xl font-bold text-[#111315] mt-3">
-            {approvedCount || 0}
+            {pendingApprovalsCount}
           </div>
+          <span className="text-[11px] text-[#737780] mt-1">Ready for one-click attendance grant</span>
         </div>
       </div>
 
-      {/* Pending Reviews Table Card */}
-      <div className="bg-white rounded-[28px] p-6 sm:p-7 border border-black/[0.06] shadow-sm">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h3 className="font-bold text-base text-[#111315]">Pending Concept Submissions</h3>
-            <p className="text-xs text-[#737780] mt-0.5">Students awaiting your evaluation and attendance sign-off</p>
-          </div>
-          <Link href="/tutor/attendance" className="text-xs font-semibold text-[#111315] hover:opacity-75 flex items-center gap-1">
-            Review All <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
+      {/* 2. Main Section: Subheading "Students Online" with "Take Student" Actions */}
+      <StudentsOnlineList
+        students={onlineStudents}
+        topics={topics}
+      />
 
-        <div className="space-y-3">
-          {pendingReviews?.map((rec: any) => (
-            <div key={rec.id} className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F9FAFB] border border-black/[0.04] text-xs">
-              <div>
-                <p className="font-bold text-sm text-[#111315]">{rec.profiles?.full_name || 'Student'}</p>
-                <p className="text-[#737780] text-[11px] mt-0.5">
-                  {rec.schedules?.title} • {new Date(rec.attendance_date).toLocaleDateString()}
-                </p>
-              </div>
-              <Link
-                href={`/tutor/attendance#review-${rec.id}`}
-                className="px-4 py-1.5 rounded-full bg-[#111215] text-white hover:bg-black font-semibold text-[11px] transition-all shadow-sm"
-              >
-                Evaluate Answer
-              </Link>
-            </div>
-          ))}
-          {(!pendingReviews || pendingReviews.length === 0) && (
-            <div className="text-center py-8 text-[#737780] text-xs">
-              No pending reviews! All assigned student submissions have been evaluated.
-            </div>
-          )}
-        </div>
-      </div>
+      {/* 3. "My Active Mentees Today" Section with Task Review & Approval */}
+      <TutorMenteesList
+        records={myMenteesRecords}
+      />
     </div>
   )
 }
