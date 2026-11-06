@@ -41,6 +41,7 @@ interface DesignPageHeaderProps {
   actionLabel?: string
   actionHref?: string
   settingsHref?: string
+  dateBadge?: string
 }
 
 export function DesignPageHeader({
@@ -53,6 +54,7 @@ export function DesignPageHeader({
   actionLabel = '+ Create New Schedule',
   actionHref = '/admin/schedules',
   settingsHref = '/admin/analytics',
+  dateBadge,
 }: DesignPageHeaderProps) {
   const FirstIcon = ICON_MAP[firstLinePillIconName] || Settings
   const SecondIcon = ICON_MAP[secondLinePillIconName] || Sparkles
@@ -78,8 +80,15 @@ export function DesignPageHeader({
         </h1>
       </div>
 
-      {/* Action Controls matching image (Settings Circle + Black Rounded Pill) */}
-      <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
+      {/* Action Controls matching image (Date Badge + Settings Circle + Black Rounded Pill) */}
+      <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start sm:self-auto">
+        {dateBadge && (
+          <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white border border-black/[0.08] text-xs font-semibold text-[#111315] shadow-sm shrink-0">
+            <Calendar className="w-3.5 h-3.5 text-[#111315]" />
+            <span>{dateBadge}</span>
+          </div>
+        )}
+
         {settingsHref && (
           <Link
             href={settingsHref}
