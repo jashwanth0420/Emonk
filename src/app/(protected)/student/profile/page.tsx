@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { updateProfileAction } from './actions'
+import { ChangePasswordCard } from '@/components/student/ChangePasswordCard'
 
 const studentPillTabs = [
   { href: '/student/dashboard', label: 'Overview' },
@@ -150,6 +151,9 @@ export default async function StudentProfilePage({
           </Button>
         </form>
       </div>
+
+      {/* Security & Password Change */}
+      <ChangePasswordCard />
     </div>
   )
 }
